@@ -1,0 +1,46 @@
+
+<!-- Settings Panel -->
+<script type="text/x-red" data-template-name="allenandheath-AHNetwork">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ipAddress"><i class="icon-bookmark"></i> Mix Rack IP Address</label>
+        <input type="text" id="node-config-input-ipAddress">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+        <input type="text" id="node-config-input-port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-console"><i class="icon-tag"></i> Console:</label>
+        <select id="node-config-input-console">
+            <option value=""></option>
+            <option value="iLive">iLive</option>
+            <option value="dLive">dLive</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-midiChannel"><i class="icon-bookmark"></i> Midi Channel</label>
+        <input type="text" id="node-config-input-midiChannel">
+    </div>
+</script>
+
+<!-- Register -->
+<script type="text/javascript">
+    RED.nodes.registerType('allenandheath-AHNetwork', {
+        category: 'config',
+        defaults: {
+            name: {value: ""},
+            ipAddress: {value: "0.0.0.0", required: true},
+            port: {value: 51325, required: true, validate: RED.validators.number()},
+            console: {value: "", required: true},
+            midiChannel: {value: "", required: true}
+        },
+        icon: "panasonic.png",
+        label: function() {
+            return this.name||"Allen & Heath Network";
+        }
+    });
+</script>
