@@ -32,11 +32,16 @@ module.exports = {
             buffer.writeUInt8(0x04, 9);
             buffer.writeUInt8(0x20, 10);
             buffer.writeUInt8(0xF7, 11);
+            //console.log(buffer);
             server.write(buffer);
         
             var handler = function(message) {
-                if(message[12] == 0xF7) {success=true;}
-                successFunction(true);
+                console.log("GOT RESPONSE MAMMTTTEE");
+                console.log(message);
+                if(message[12] == 0xF7) {
+                    success=true;
+                    successFunction(true);
+                }
             }
             
             server.on("data", handler);

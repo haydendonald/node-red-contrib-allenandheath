@@ -32,8 +32,10 @@ module.exports = {
             server.write(buffer);
         
             var handler = function(message) {
-                if(message[12] == 0xF7) {success=true;}
-                successFunction(true);
+                if(message[12] == 0xF7) {
+                    success=true;
+                    successFunction(true);
+                }
             }
             
             server.on("data", handler);

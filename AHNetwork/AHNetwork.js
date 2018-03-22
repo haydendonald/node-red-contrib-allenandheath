@@ -7,7 +7,7 @@ module.exports = function(RED)
     module.exports.sendCommand = function(msg, sender, network) {
         var value = false;
 
-        value = mode.generatePacket(network.console, msg, network.server, network.midiChannel);
+        value = modes.generatePacket(network.console, msg, network.server, network.midiChannel);
 
         // Object.keys(modes).forEach(function(mode){
         //         if(value === false) {
@@ -44,7 +44,7 @@ module.exports = function(RED)
     {
         RED.nodes.createNode(this, config);
         this.log("Created Allen & Heath Network Console: " + config.console + " @ IP: " + config.ipAddress + ":" + config.port);
-        this.midiChannel = config.midiChannel - 1;
+        this.midiChannel = (config.midiChannel - 1).toString(16);
         this.ipAddress = config.ipAddress;
         this.port = config.port;
         this.server;
