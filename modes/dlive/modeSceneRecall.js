@@ -5,6 +5,8 @@
 
 //B[ID] 00 BANK C[ID] SCENE
 
+var global = require("./modeGlobal.js");
+
 module.exports = {
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel) {
@@ -17,28 +19,29 @@ module.exports = {
             var sceneNumber = msg.payload.sceneNumber;
             if(msg.payload.sceneNumber <= 128) {
                 bank = 0x00;
-                sceneNumber -= 127;
+                //sceneNumber -= 127;
             }
             else if(msg.payload.sceneNumber <=129) {
                 bank = 0x01;
-                sceneNumber -= 256;
+                sceneNumber -= 129;
             }
             else if(msg.payload.sceneNumber <= 257) {
                 bank = 0x02;
-                sceneNumber -= 384;
+                sceneNumber -= 257;
             }
             else if(msg.payload.sceneNumber <= 385 && msg.payload.sceneNumber <= 500) {
                 bank = 0x03;   
-                sceneNumber -= 499;
+                sceneNumber -= 385;
             }
-
+            
+            console.log(sceneNumber);
             //Send out request
             var buffer = new Buffer(5);
             buffer.writeUInt8((0xB0 + parseInt(midiChannel, 16)), 0);
             buffer.writeUInt8(0x00, 1);
             buffer.writeUInt8(bank, 2);
             buffer.writeUInt8((0xC0 + parseInt(midiChannel, 16)), 3);
-            buffer.writeUInt8(sceneNumber, 4);
+            buffer.writeUInt8(sceneNumber - 1, 4);
             return buffer;  
         }
         else{

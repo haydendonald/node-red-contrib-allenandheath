@@ -9,20 +9,12 @@ module.exports = function(RED)
 
         value = modes.generatePacket(network.console, msg, network.server, network.midiChannel);
 
-        // Object.keys(modes).forEach(function(mode){
-        //         if(value === false) {
-        //             var mode = modes[mode];
-        //             value = mode.generatePacket(msg, network.server, network.midiChannel);
-        //         }
-        //     });
-
         if((typeof value === "string")) {
             network.node.error("Mode Error: " + value);
             sendError(sender, network, "Mode Error: " + value);
         }
         else if(value != false){
             network.server.write(value);
-            console.log(value);
             sendSuccess(sender, network, "Sent!");
         }
         else {

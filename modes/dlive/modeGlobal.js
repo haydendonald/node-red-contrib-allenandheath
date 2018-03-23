@@ -18,8 +18,8 @@ module.exports = {
     DCA 1 to 24: N = N + 4, CH = 36 to 4D
     Mute Group 1 to 8: N = N + 4, CH = 4E to 55
     */
-    getChannelSelection: function(midiChannel, rawMidiChannel, rawChannel) {
-        switch(rawMidiChannel - (0xB0 + parseInt(midiChannel, 16))) {
+    getChannelSelection: function(midiChannel, preMidi, rawMidiChannel, rawChannel) {
+        switch(rawMidiChannel - (preMidi + parseInt(midiChannel, 16))) {
             case 0: {
                 return "inputs";
                 break;
@@ -62,13 +62,13 @@ module.exports = {
                     return "FXReturn";
                 }
                 else if(rawChannel <= 0x35) {
-                    return "Mains";
+                    return "mains";
                 }
                 else if(rawChannel <= 0x4D) {
                     return "DCA";
                 }
                 else if(rawChannel <= 0x55) {
-                    return "MuteGroup";
+                    return "muteGroup";
                 }
                 break;
             }
@@ -83,73 +83,73 @@ module.exports = {
         var sendOut = new Buffer(2);
         switch(channelSelection){
             case "inputs": {
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16)), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16)), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "monoGroups": {
                 if(channel > 0x3D){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 1), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 1), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "stereoGroups": {
                 if(channel <= 0x3D || channel > 0x5E){return;}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 1), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 1), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "monoAux": {
                 if(channel > 0x3D){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 2), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 2), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "stereoAux": {
                 if(channel <= 0x3D || channel > 0x5E){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 2), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 2), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "monoMatrix": {
                 if(channel > 0x3D){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 3), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 3), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "stereoMatrix": {
                 if(channel <= 0x3D || channel > 0x5E){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 3), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 3), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "monoFXSend": {
                 if(channel > 0x0F){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 4), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 4), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "FXReturn": {
                 if(channel <= 0x0F || channel > 0x1F){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 4), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 4), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
-            case "Mains": {
+            case "mains": {
                 if(channel <= 0x1F || channel > 0x35){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel + 4, 16)), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 4), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
             case "DCA": {
                 if(channel <= 0x35 || channel > 0x4D){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 4), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 4), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }
-            case "MuteGroup": {
+            case "muteGroup": {
                 if(channel <= 0x4D || channel > 0x55){return "ERROR";}
-                sendOut.writeUInt8((0xB0 + parseInt(midiChannel, 16) + 4), 0);
+                sendOut.writeUInt8((parseInt(midiChannel, 16) + 4), 0);
                 sendOut.writeUInt8(channel, 1);
                 break;
             }

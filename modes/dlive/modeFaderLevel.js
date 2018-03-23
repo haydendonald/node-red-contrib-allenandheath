@@ -20,10 +20,9 @@ module.exports = {
             //Send out request
             var buffer = new Buffer(7);
             var channelSelection = global.setChannelSelection(msg.payload.channelSelection, midiChannel, msg.payload.channel)
-            console.log(channelSelection);
             if(channelSelection == "ERROR") {return "Invalid Channel Selection";} 
 
-            buffer.writeUInt8(channelSelection[0], 0);
+            buffer.writeUInt8(0xB0 + channelSelection[0], 0);
             buffer.writeUInt8(0x63, 1);
             buffer.writeUInt8(channelSelection[1], 2);
             buffer.writeUInt8(0x62, 3);
@@ -41,9 +40,8 @@ module.exports = {
     recieve: function recieve(midiChannel, data) {
         var msg = {payload:{}};
         msg.payload.mode = "faderLevel";
-        msg.payload.channelSelection = global.getChannelSelection(midiChannel, data[0], data[2]);
+        msg.payload.channelSelection = global.getChannelSelection(midiChannel, 0xB0, data[0], data[2]);
         if(msg.payload.channelSelection == "ERROR"){return false;}
-        //if(data[0] != (0xB0 + parseInt(midiChannel, 16))){return false;}
         if(data[1] != 0x63){return false;}
         if(data[3] != 0x62){return false;}
         if(data[4] != 0x17){return false;}
