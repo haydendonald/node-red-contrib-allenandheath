@@ -15,10 +15,10 @@ module.exports = {
             var sceneNumber = msg.payload.sceneNumber;
             if(msg.payload.sceneNumber > 128){offset = 0x01; sceneNumber - 127;}
             var buffer = new Buffer(5);
-            buffer.writeUInt8((0xB0 + parseInt(midiChannel)), 0);
+            buffer.writeUInt8((0xB0 + parseInt(midiChannel, 16)), 0);
             buffer.writeUInt8(0x00, 1);
             buffer.writeUInt8(offset, 2);
-            buffer.writeUInt8((0xC0 + parseInt(midiChannel)), 3);
+            buffer.writeUInt8((0xC0 + parseInt(midiChannel, 16)), 3);
             buffer.writeUInt8(sceneNumber, 4);
             return buffer;  
         }

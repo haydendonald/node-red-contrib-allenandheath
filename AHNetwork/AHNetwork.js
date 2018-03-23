@@ -22,6 +22,7 @@ module.exports = function(RED)
         }
         else if(value != false){
             network.server.write(value);
+            console.log(value);
             sendSuccess(sender, network, "Sent!");
         }
         else {
@@ -57,7 +58,6 @@ module.exports = function(RED)
         this.node = this;
         var node = this.node;
         this.recentlySentMessage = false;
-
         //On close disconnect
         this.on("close", function() {
             node.server.end();

@@ -17,7 +17,7 @@ module.exports = {
 
             //Send out request
             var buffer = new Buffer(7);
-            buffer.writeUInt8((0xB0 + parseInt(midiChannel)), 0);
+            buffer.writeUInt8((0xB0 + parseInt(midiChannel, 16)), 0);
             buffer.writeUInt8(0x63, 1);
             buffer.writeUInt8(msg.payload.channel, 2);
             buffer.writeUInt8(0x62, 3);
@@ -35,7 +35,7 @@ module.exports = {
     recieve: function recieve(midiChannel, data) {
         var msg = {payload:{}};
         msg.payload.mode = "faderLevel";
-        if(data[0] != (0xB0 + parseInt(midiChannel))){return false;}
+        if(data[0] != (0xB0 + parseInt(midiChannel, 16))){return false;}
         if(data[1] != 0x63){return false;}
         if(data[3] != 0x62){return false;}
         if(data[4] != 0x17){return false;}

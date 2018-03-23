@@ -34,10 +34,10 @@ module.exports = {
 
             //Send out request
             var buffer = new Buffer(5);
-            buffer.writeUInt8((0xB0 + parseInt(midiChannel)), 0);
+            buffer.writeUInt8((0xB0 + parseInt(midiChannel, 16)), 0);
             buffer.writeUInt8(0x00, 1);
             buffer.writeUInt8(bank, 2);
-            buffer.writeUInt8((0xC0 + parseInt(midiChannel)), 3);
+            buffer.writeUInt8((0xC0 + parseInt(midiChannel, 16)), 3);
             buffer.writeUInt8(sceneNumber, 4);
             return buffer;  
         }
