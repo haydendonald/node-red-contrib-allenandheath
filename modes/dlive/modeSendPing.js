@@ -35,6 +35,7 @@ module.exports = {
             server.write(buffer);
         
             var handler = function(message) {
+                console.log("PING IN");
                 if(message[12] == 0xF7) {
                     success=true;
                     successFunction(true);
@@ -51,6 +52,9 @@ module.exports = {
         
                 server.removeListener("data", handler);
             }, 1000);
+    }
+    else {
+        successFunction(true);
     }
         return true;
     }

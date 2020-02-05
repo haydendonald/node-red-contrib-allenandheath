@@ -49,6 +49,9 @@ module.exports = {
                 server.removeListener("data", handler);
             }, 1000);
     }
+    else {
+        successFunction(true);
+    }
         return true;
     }
 }

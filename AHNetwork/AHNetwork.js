@@ -65,33 +65,37 @@ module.exports = function(RED)
                 if(state) {
                     connected(node);
                     //Check for console connection every 10s
-                    // this.connectionCheck = setInterval(function() {
-                    //     if(node.connected) {
-                    //         var value = modes.sendPing(node.console, node.server, node.midiChannel, node.recentlySentMessage, function(success) {
-                    //             if(!success) {
-                    //                 //Disconnected
-                    //                 //node.error("Failed To Ping Console");
-                    //                 sendError("any", node, "Ping Failed");
-                    //                 reConnect(node); 
-                    //             }
-                    //             else {
-                    //                 sendSuccess("any", node, "Connected");
-                    //             }
-                    //         });
-                    //         if(value != true) {
-                    //             //node.error("Failed To Send Ping: " + value);
-                    //             sendError("any", node, "Sending Ping Failed");
-                    //         }
-                    //     }
-                    //     else {
-                    //         reConnect(node);             
-                    //     }
-                    // }, 30000);
+                    clearInterval(this.connectionCheck);
+                    this.connectionCheck = setInterval(function() {
+                        if(node.connected && node.recentlySentMessage != true) {
+                            sendSuccess("any", node, "Checking connection");
+                            var value = modes.sendPing(node.console, node.server, node.midiChannel, node.recentlySentMessage, function(success) {
+                                if(!success) {
+                                    //Disconnected
+                                    sendError("any", node, "Ping Failed");
+                                    reConnect(node); 
+                                }
+                                else {
+                                    sendSuccess("any", node, "Connected");
+                                }
+                            });
+                            if(value != true) {
+                                node.error("Failed To Send Ping: " + value);
+                                sendError("any", node, "Sending Ping Failed");
+                            }
+                        }
+                        else {
+                            reConnect(node);             
+                        }
+                    }, 30000);
                 }
                 else {
-                    node.error("Retrying Inital Connection - Check that your IP is correct");
-                    sendError("any", node, "Failed Conection");
-                    tryToConnect();
+                    //Retry after 10 sec
+                    setTimeout(function() {
+                        node.error("Retrying Inital Connection - Check that your IP is correct");
+                        sendError("any", node, "Failed Conection");
+                        tryToConnect();
+                    }, 30000);
                 }
             });
         }
@@ -102,7 +106,6 @@ module.exports = function(RED)
 
 //Set callbacks when we are connected
 function connected(node) {
-    node.log("Connected Successfully");
     sendSuccess("any", node, "Connected");
     node.connected = true;
 
@@ -119,10 +122,10 @@ function connected(node) {
         if((typeof value === "string")) {
             //An Error Occurred
             node.error("Mode Error: " + value);
-            sendError("any", node, "Mode Error: "+ value);
+            sendError("any", node, "Mode error check debug");
         }
         else if(value != false){
-            sendSuccess("any", node, "Got Data");
+            sendSuccess("any", node, "Got message!");
             sendMessage("any", node, value);
         }
     });
@@ -142,6 +145,8 @@ function connect(node, isConnected) {
     setTimeout(function() {
         if(node.connected == false) {
             isConnected(false);
+            sendError("any", node, "Failed connection check debug!");
+            node.error("Failed to connect, please check if we can connect");
         }
     }, 5000);
 
@@ -155,10 +160,12 @@ function connect(node, isConnected) {
         node.server.on("close", function() {
             node.connected = false;
             node.warn("Socket Closed");
+            sendError("any", node, "Lost connection");
         });
 
         node.server.on("timeout", function() {
             node.error("A Timeout Occured, Assuming Disconnected");
+            sendError("any", node, "Failed connection check debug!");
             reConnect(node); 
         });
 
@@ -166,22 +173,26 @@ function connect(node, isConnected) {
             switch(e.code) {
                 case "EADDRINUSE": {
                     node.error("Critical Error: Socket In Use");
+                    sendError("any", node, "Failed connection check debug!");
                     clearInterval(node.connectionCheck);
                     node.connected = false;
                     break;
                 }
                 case "ECONNRESET": {
                     node.error("Error: Network Reset");
+                    sendError("any", node, "Failed connection check debug!");
                     reConnect(node);
                     break;
                 }
                 case "EHOSTUNREACH": {
                     node.error("Error: Failed To Reach The Console");
+                    sendError("any", node, "Failed connection check debug!");
                     setTimeout(function(){reConnect(node);}, 10000);
                     break;
                 }
                 default: {
                     node.error("An Error Occured " + e);
+                    sendError("any", node, "Failed connection check debug!");
                     reConnect(node); 
                     break;
                 }
@@ -193,7 +204,7 @@ function connect(node, isConnected) {
 //Attempt reconnection
 function reConnect(node) {
     if(node.connected) {
-        //node.warn("Attempting Reconnection");
+        sendError("any", node, "Attempting reconnection..");
     }
 
     if(node.server !== undefined) {
@@ -208,6 +219,7 @@ function reConnect(node) {
     }
     else {
         node.error("Critical Error Attempted To Reconnect On Undefined Server Socket");
+        sendError("any", node, "Failed connection check debug!");
         clearInterval(node.connectionCheck);
     }
 }
