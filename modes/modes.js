@@ -3,7 +3,7 @@ var dlive = require("./dlive/modes.js");
 
 
 module.exports = {
-    generatePacket: function(consol, msg, server, midiChannel) {
+    generatePacket: function(consol, msg, server, midiChannel, returnPayload) {
         var modes = undefined;
 
         //Select the console used
@@ -26,7 +26,7 @@ module.exports = {
         Object.keys(modes).forEach(function(mode){
             if(value === false) {
                 var mode = modes[mode];
-                value = mode.generatePacket(msg, server, midiChannel);
+                value = mode.generatePacket(msg, server, midiChannel, returnPayload);
             }
         });
 

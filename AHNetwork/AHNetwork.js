@@ -1,4 +1,5 @@
 var tcp = require('net');
+var udp = require('dgram');
 var modes = require("../modes/modes.js");
 
 
@@ -7,7 +8,9 @@ module.exports = function(RED)
     module.exports.sendCommand = function(msg, sender, network) {
         var value = false;
 
-        value = modes.generatePacket(network.console, msg, network.server, network.midiChannel);
+        value = modes.generatePacket(network.console, msg, network.server, network.midiChannel, function(msg) {
+            sendMessage("any", network.node, msg);
+        });
 
         if((typeof value === "string")) {
             network.node.error("Mode Error: " + value);
@@ -111,7 +114,6 @@ function connected(node) {
 
     //When we get in some data
     node.server.on("data", function(message) {
-        console.log(message);
         if(!node.recentlySentMessage) {
             node.recentlySentMessage = true;
             setTimeout(function(){node.recentlySentMessage = false}, 30000);

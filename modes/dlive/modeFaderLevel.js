@@ -5,10 +5,29 @@
 var global = require("./modeGlobal.js");
 
 module.exports = {
+    channelValues: {},
     //Send out
-    generatePacket: function generatePacket(msg, server, midiChannel) {
+    generatePacket: function generatePacket(msg, server, midiChannel, returnPayload) {    
         if(msg.payload.mode == "faderLevel") {
             //Validate
+            
+            //If no level was passed return the stored channel value
+            if(Number.isInteger(parseInt(msg.payload.channel)) && (msg.payload.level === undefined || msg.payload.level === null)) {
+                if(this.channelValues[msg.payload.channelSelection] === undefined || this.channelValues[msg.payload.channelSelection][parseInt(msg.payload.channel)] === undefined) {
+                    return "Value is not stored in memory. Please move the fader to get the value";
+                }
+
+                returnPayload({
+                    "payload": {
+                        "mode": "faderLevel",
+                        "channelSelection": msg.payload.channelSelection,
+                        "channel": parseInt(msg.payload.channel),
+                        "level": this.channelValues[msg.payload.channelSelection][parseInt(msg.payload.channel)]
+                    }
+                });
+                return true;
+            }
+
             if(!Number.isInteger(parseInt(msg.payload.channel))){return "No msg.payload.channel\n";}
             if(!Number.isInteger(parseInt(msg.payload.level))){return "No msg.payload.level\n";}
 
@@ -49,6 +68,8 @@ module.exports = {
 
         msg.payload.channel = data[2];
         msg.payload.level = data[6];
+        if(this.channelValues[msg.payload.channelSelection] == undefined || this.channelValues[msg.payload.channelSelection] == null){this.channelValues[msg.payload.channelSelection] = {};}
+        this.channelValues[msg.payload.channelSelection][msg.payload.channel] = msg.payload.level;
         return msg;
     },
 
