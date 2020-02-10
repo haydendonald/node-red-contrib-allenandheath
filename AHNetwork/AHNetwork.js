@@ -62,6 +62,55 @@ module.exports = function(RED)
             clearInterval(this.connectionCheck);
         });
 
+
+
+        server = udp.createSocket('udp4');
+
+        server.on('error', function(err) {
+            node.error("An Error Occured: " + err);
+            node.sendStatus("red", "Internal Error", err);
+        });
+
+        server.on('message', function(message) {
+
+            console.log(message);
+            
+
+            if(data[1] != 0x63){return false;}
+            if(data[3] != 0x62){return false;}
+            if(data[4] != 0x17){return false;}
+            if(data[5] != 0x06){return false;}
+
+            console.log("HEYYY");
+            console.log(message);
+
+
+
+
+
+
+        });
+
+        server.bind(21027);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         var tryToConnect = function() {
             node.log("Attempting Inital Connection");
             connect(node, function(state) {

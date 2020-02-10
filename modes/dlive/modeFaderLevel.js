@@ -13,6 +13,9 @@ module.exports = {
             
             //If no level was passed return the stored channel value
             if(Number.isInteger(parseInt(msg.payload.channel)) && (msg.payload.level === undefined || msg.payload.level === null)) {
+                
+
+                console.log(this.channelValues);
                 if(this.channelValues[msg.payload.channelSelection] === undefined || this.channelValues[msg.payload.channelSelection][parseInt(msg.payload.channel)] === undefined) {
                     return "Value is not stored in memory. Please move the fader to get the value";
                 }
