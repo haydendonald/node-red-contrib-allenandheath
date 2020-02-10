@@ -68,7 +68,7 @@ module.exports = function(RED)
 
         server.on('error', function(err) {
             node.error("An Error Occured: " + err);
-            node.sendStatus("red", "Internal Error", err);
+            //node.sendStatus("red", "Internal Error", err);
         });
 
         server.on('message', function(message) {
