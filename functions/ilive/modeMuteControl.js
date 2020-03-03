@@ -1,13 +1,12 @@
 
 //Functional
-//Mute 9[N] [CH] 7F/3F 9[N] [CH] 00
-
-var global = require("./modeGlobal.js");
+//Mute On 9[N] [CH] 7F [CH] 00
+//Mute Off 9[N] [CH] 3F [CH] 00
 
 module.exports = {
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel) {
-        if(msg.payload.mode == "muteControl") {
+        if(msg.payload.function == "muteControl") {
 
             //Need to add support for msg.payload.type="get/set"
             if(msg.payload.type !== undefined) {
@@ -21,16 +20,12 @@ module.exports = {
             //Send out request
             var state;
             if(msg.payload.state == true) {state = 0x7F;}else{state = 0x3F;}
-            var channelSelection = global.setChannelSelection(msg.payload.channelSelection, midiChannel, msg.payload.channel)
-            if(channelSelection == "ERROR") {return "Invalid Channel Selection";} 
-
-            var buffer = new Buffer(6);
-            buffer.writeUInt8((0x90 + channelSelection[0]), 0);
-            buffer.writeUInt8(channelSelection[1], 1);
+            var buffer = new Buffer(5);
+            buffer.writeUInt8((0x90 + parseInt(midiChannel, 16)), 0);
+            buffer.writeUInt8(msg.payload.channel, 1);
             buffer.writeUInt8(state, 2);
-            buffer.writeUInt8((0x90 + channelSelection[0]), 3);
-            buffer.writeUInt8(channelSelection[1], 4);
-            buffer.writeUInt8(0x00, 5);
+            buffer.writeUInt8(msg.payload.channel, 3);
+            buffer.writeUInt8(0x00, 4);
             return buffer;
         }
         else{
@@ -41,9 +36,8 @@ module.exports = {
     //Recieved data
     recieve: function recieve(midiChannel, data) {
         var msg = {payload:{}};
-        msg.payload.mode = "muteControl";
-        msg.payload.channelSelection = global.getChannelSelection(midiChannel, 0x90, data[0], data[1]);
-        if(msg.payload.channelSelection == "ERROR"){return false;}
+        msg.payload.function = "muteControl";
+        if(data[0] != (0x90 + parseInt(midiChannel, 16))){return false;}
         if(data[1] != data[3]){return false;}
         msg.payload.channel = data[1];
         msg.payload.state = data[2] == 0x7F;

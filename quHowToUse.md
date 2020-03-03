@@ -5,24 +5,18 @@
 ```
 //Received Information Format
 var msg.payload = {
-    "cmd": "The command",
-    "raw": {
-        "flag": "The flag of the packet that was sent",
-        "length": "The length of the packet",
-        "name": "The command name",
-        "packet": "The raw packet"
-    },
-    "data": {
-        "The data outputted by a supported Command."
-    },
+    "mode": "The mode recieved",
+    ...
 }
+
 //Send Information Format
 var msg.payload = {
-    "cmd": "The command",
-    "data": {
-        "The data outputted by a supported Command. Note if this is empty it will return allstored data"
-    },
+    "mode": "The mode to perform",
+    "type": "get/set",
+    ...
 }
+
+... = Specific mode parameters, see below modes for more
 ```
 
 

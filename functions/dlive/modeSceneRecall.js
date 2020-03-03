@@ -10,7 +10,7 @@ var global = require("./modeGlobal.js");
 module.exports = {
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel) {
-        if(msg.payload.mode == "sceneRecall") {
+        if(msg.payload.function == "sceneRecall") {
 
             //Need to add support for msg.payload.type="get/set"
             if(msg.payload.type !== undefined) {
@@ -39,8 +39,7 @@ module.exports = {
                 bank = 0x03;   
                 sceneNumber -= 385;
             }
-            
-            console.log(sceneNumber);
+
             //Send out request
             var buffer = new Buffer(5);
             buffer.writeUInt8((0xB0 + parseInt(midiChannel, 16)), 0);

@@ -5,7 +5,7 @@
 module.exports = {
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel) {
-        if(msg.payload.mode == "sceneRecall") {
+        if(msg.payload.function == "sceneRecall") {
 
             //Need to add support for msg.payload.type="get/set"
             if(msg.payload.type !== undefined) {

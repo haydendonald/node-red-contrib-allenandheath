@@ -8,7 +8,7 @@ module.exports = {
     channelValues: {},
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel, returnPayload) {    
-        if(msg.payload.mode == "faderLevel") {
+        if(msg.payload.function == "faderLevel") {
             //Validate
 
             //Need to add support for msg.payload.type="get/set"
@@ -28,7 +28,7 @@ module.exports = {
 
                 returnPayload({
                     "payload": {
-                        "mode": "faderLevel",
+                        "function": "faderLevel",
                         "channelSelection": msg.payload.channelSelection,
                         "channel": parseInt(msg.payload.channel),
                         "level": this.channelValues[msg.payload.channelSelection][parseInt(msg.payload.channel)]
@@ -67,7 +67,7 @@ module.exports = {
     //Recieved data
     recieve: function recieve(midiChannel, data) {
         var msg = {payload:{}};
-        msg.payload.mode = "faderLevel";
+        msg.payload.function = "faderLevel";
         msg.payload.channelSelection = global.getChannelSelection(midiChannel, 0xB0, data[0], data[2]);
         if(msg.payload.channelSelection == "ERROR"){return false;}
         if(data[1] != 0x63){return false;}

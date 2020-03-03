@@ -33,13 +33,8 @@ module.exports = {
             buffer.writeUInt8(0x20, 10);
             buffer.writeUInt8(0xF7, 11);
             server.write(buffer);
-
-            console.log("PING OUT");
-            console.log(buffer);
-
         
             var handler = function(message) {
-                console.log("PING IN");
                 if(message[12] == 0xF7) {
                     success=true;
                     successFunction(true);

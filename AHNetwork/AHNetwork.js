@@ -1,5 +1,5 @@
 var tcp = require('net');
-var modes = require("../modes/modes.js");
+var modes = require("../functions/functions.js");
 
 module.exports = function(RED)
 {
@@ -11,16 +11,16 @@ module.exports = function(RED)
         });
 
         if((typeof value === "string")) {
-            network.node.error("Mode Error: " + value);
-            sendError(sender, network, "Mode Error: " + value);
+            network.node.error("Function Error: " + value);
+            sendError(sender, network, "Function Error: " + value);
         }
         else if(value != false){
             network.server.write(value);
             sendSuccess(sender, network, "Sent!");
         }
         else {
-            network.node.error("No Mode Found");
-            sendError(sender, network, "Mode Error: No Mode Found");                  
+            network.node.error("No Function Found");
+            sendError(sender, network, "Function Error: No Function Found");                  
         }
     }
     module.exports.addErrorCallback = function(network, fn) {
@@ -114,6 +114,8 @@ function connected(node) {
     node.server.on("data", function(message) {
         console.log("QU IN");
         console.log(message);
+
+
         if(!node.recentlySentMessage) {
             node.recentlySentMessage = true;
             setTimeout(function(){node.recentlySentMessage = false}, 30000);
@@ -123,8 +125,8 @@ function connected(node) {
 
         if((typeof value === "string")) {
             //An Error Occurred
-            node.error("Mode Error: " + value);
-            sendError("any", node, "Mode error check debug");
+            node.error("Function Error: " + value);
+            sendError("any", node, "Function error check debug");
         }
         else if(value != false){
             sendSuccess("any", node, "Got message!");
@@ -136,12 +138,7 @@ function connected(node) {
 //Connect
 function connect(node, isConnected) {
     node.server = new tcp.Socket();
-    console.log("attempt");
 
-
-    node.server.on("close", function(yeet) {
-        console.log("closed");
-    });
     node.server.on("data", function(message) {
         console.log("incmomig");
         console.log(message);
@@ -162,9 +159,6 @@ function connect(node, isConnected) {
         }
     }, 5000);
 
-
-    //Stop crashes when a error comes in (we don't care about it atm)
-    node.server.on("error", function(){});
 
     //If we're connected
     if(node.connected) {

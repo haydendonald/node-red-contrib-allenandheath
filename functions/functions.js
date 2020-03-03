@@ -1,6 +1,6 @@
-var ilive = require("./ilive/modes.js");
-var dlive = require("./dlive/modes.js");
-var qu = require("./qu/modes.js");
+var ilive = require("./ilive/parameters.js");
+var dlive = require("./dlive/parameters.js");
+var qu = require("./qu/parameters.js");
 
 
 module.exports = {
@@ -10,15 +10,15 @@ module.exports = {
         //Select the console used
         switch(consol) {
             case "iLive": {
-                modes = ilive;
+                modes = ilive.functions;
                 break;
             }
             case "dLive": {
-                modes = dlive;
+                modes = dlive.functions;
                 break;
             }
             case "qu": {
-                modes = qu;
+                modes = qu.functions;
                 break;
             }
             default: {
@@ -43,15 +43,15 @@ module.exports = {
 
         switch(consol) {
             case "iLive": {
-                modes = ilive;
+                modes = ilive.functions;
                 break;
             }
             case "dLive": {
-                modes = dlive;
+                modes = dlive.functions;
                 break;
             }
             case "qu": {
-                modes = qu;
+                modes = qu.functions;
                 break;
             }
             default: {
@@ -76,15 +76,15 @@ module.exports = {
         //Select the console used
         switch(consol) {
             case "iLive": {
-                modes = ilive;
+                modes = ilive.functions;
                 break;
             }
             case "dLive": {
-                modes = dlive;
+                modes = dlive.functions;
                 break;
             }
             case "qu": {
-                modes = qu;
+                modes = qu.functions;
                 break;
             }
             default: {
