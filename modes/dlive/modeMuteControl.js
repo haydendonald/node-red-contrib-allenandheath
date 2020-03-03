@@ -8,6 +8,12 @@ module.exports = {
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel) {
         if(msg.payload.mode == "muteControl") {
+
+            //Need to add support for msg.payload.type="get/set"
+            if(msg.payload.type !== undefined) {
+                return "msg.payload.type is not supported by this function, it only supports setting";
+            }
+
             //Validate
             if(!Number.isInteger(parseInt(msg.payload.channel))){return "No msg.payload.channel\n";}
             if(!(typeof(msg.payload.state) === "boolean")){return "No msg.payload.state\n";}
@@ -38,7 +44,7 @@ module.exports = {
         msg.payload.mode = "muteControl";
         msg.payload.channelSelection = global.getChannelSelection(midiChannel, 0x90, data[0], data[1]);
         if(msg.payload.channelSelection == "ERROR"){return false;}
-        if(data[1] != data[3]){console.log("2");return false;}
+        if(data[1] != data[3]){return false;}
         msg.payload.channel = data[1];
         msg.payload.state = data[2] == 0x7F;
         return msg;

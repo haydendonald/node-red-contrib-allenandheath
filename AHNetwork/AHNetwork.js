@@ -1,7 +1,5 @@
 var tcp = require('net');
-var udp = require('dgram');
 var modes = require("../modes/modes.js");
-
 
 module.exports = function(RED)
 {
@@ -62,55 +60,6 @@ module.exports = function(RED)
             clearInterval(this.connectionCheck);
         });
 
-
-
-        server = udp.createSocket('udp4');
-
-        server.on('error', function(err) {
-            node.error("An Error Occured: " + err);
-            //node.sendStatus("red", "Internal Error", err);
-        });
-
-        server.on('message', function(message) {
-
-            console.log(message);
-            
-
-            if(data[1] != 0x63){return false;}
-            if(data[3] != 0x62){return false;}
-            if(data[4] != 0x17){return false;}
-            if(data[5] != 0x06){return false;}
-
-            console.log("HEYYY");
-            console.log(message);
-
-
-
-
-
-
-        });
-
-        server.bind(21027);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         var tryToConnect = function() {
             node.log("Attempting Inital Connection");
             connect(node, function(state) {
@@ -163,6 +112,8 @@ function connected(node) {
 
     //When we get in some data
     node.server.on("data", function(message) {
+        console.log("QU IN");
+        console.log(message);
         if(!node.recentlySentMessage) {
             node.recentlySentMessage = true;
             setTimeout(function(){node.recentlySentMessage = false}, 30000);
@@ -185,6 +136,16 @@ function connected(node) {
 //Connect
 function connect(node, isConnected) {
     node.server = new tcp.Socket();
+    console.log("attempt");
+
+
+    node.server.on("close", function(yeet) {
+        console.log("closed");
+    });
+    node.server.on("data", function(message) {
+        console.log("incmomig");
+        console.log(message);
+    });
 
      //Attempt connection
      node.server.connect(node.port, node.ipAddress, function() {

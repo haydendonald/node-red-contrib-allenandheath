@@ -6,6 +6,13 @@ module.exports = {
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel) {
         if(msg.payload.mode == "sceneRecall") {
+
+            //Need to add support for msg.payload.type="get/set"
+            if(msg.payload.type !== undefined) {
+                return "msg.payload.type is not supported by this function, it only supports setting";
+            }
+
+
             //Validate
             if(!Number.isInteger(parseInt(msg.payload.sceneNumber))){return "No msg.payload.sceneNumber\n";}
             if(msg.payload.sceneNumber < 0 || msg.payload.sceneNumber > 128){return "msg.payload.sceneNumber out of bounds. Needs to be between 0 and 128";}

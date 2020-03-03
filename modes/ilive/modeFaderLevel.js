@@ -6,6 +6,13 @@ module.exports = {
     //Send out
     generatePacket: function generatePacket(console, server, midiChannel) {
         if(msg.payload.mode == "faderLevel") {
+
+            //Need to add support for msg.payload.type="get/set"
+            if(msg.payload.type !== undefined) {
+                return "msg.payload.type is not supported by this function, it only supports setting";
+            }
+
+
             //Validate
             if(!Number.isInteger(parseInt(msg.payload.channel))){return "No msg.payload.channel\n";}
             if(!Number.isInteger(parseInt(msg.payload.level))){return "No msg.payload.level\n";}

@@ -1,5 +1,6 @@
 var ilive = require("./ilive/modes.js");
 var dlive = require("./dlive/modes.js");
+var qu = require("./qu/modes.js");
 
 
 module.exports = {
@@ -14,6 +15,10 @@ module.exports = {
             }
             case "dLive": {
                 modes = dlive;
+                break;
+            }
+            case "qu": {
+                modes = qu;
                 break;
             }
             default: {
@@ -45,6 +50,10 @@ module.exports = {
                 modes = dlive;
                 break;
             }
+            case "qu": {
+                modes = qu;
+                break;
+            }
             default: {
                 return "Console " + consol + " Not Supported";
             }
@@ -72,6 +81,10 @@ module.exports = {
             }
             case "dLive": {
                 modes = dlive;
+                break;
+            }
+            case "qu": {
+                modes = qu;
                 break;
             }
             default: {
