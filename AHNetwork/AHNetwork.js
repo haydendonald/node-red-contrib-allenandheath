@@ -1,14 +1,13 @@
 var tcp = require('net');
 //var modes = require("../functions/functions.js");
 
-var consoles = require("../functions/consoles.js");
 
 module.exports = function(RED)
 {
     module.exports.sendCommand = function(msg, sender, network) {
         var value = false;
 
-        value = consoles[node.console].generatePacket(msg, network.server, network.midiChannel, function(msg) {
+        value = network.consoles[network.node.console].generatePacket(msg, network.server, network.midiChannel, function(msg) {
             sendMessage("any", network.node, msg);
         });
 
@@ -17,8 +16,13 @@ module.exports = function(RED)
             sendError(sender, network, "Function Error: " + value);
         }
         else if(value != false){
-            network.server.write(value);
-            sendSuccess(sender, network, "Sent!");
+            if(value != true) {
+                network.server.write(value);
+                sendSuccess(sender, network, "Sent!");
+            }
+            else {
+                sendSuccess(sender, network, "Sent!");
+            }
         }
         else {
             network.node.error("No Function Found");
@@ -50,7 +54,7 @@ module.exports = function(RED)
         this.successCallbacks = [];
         this.messageCallbacks = [];
         this.console = config.console;
-        this.syncActive = true;
+        this.consoles = require("../functions/consoles.js");
         this.node = this;
         var node = this.node;
         this.recentlySentMessage = false;
@@ -60,6 +64,7 @@ module.exports = function(RED)
             this.server.destroy();
             node.connected = false;
             node.server = new tcp.Socket();
+            node.consoles[node.console].reset();
             clearInterval(this.connectionCheck);
         });
 
@@ -70,11 +75,12 @@ module.exports = function(RED)
                     connected(node);
                     //Check for console connection every 10s
                     clearInterval(this.connectionCheck);
+
                     this.connectionCheck = setInterval(function() {
                         if(node.connected && node.recentlySentMessage != true) {
                             sendSuccess("any", node, "Checking connection");
-                            var value = consoles[node.console].sendPing(node.server, node.midiChannel, node.recentlySentMessage, function(success) {
-                                if(!success) {
+                            var value = node.consoles[node.console].sendPing(node.server, node.midiChannel, node.recentlySentMessage, function(success) {
+                                if(success == false) {
                                     //Disconnected
                                     sendError("any", node, "Ping Failed");
                                     reConnect(node); 
@@ -96,9 +102,11 @@ module.exports = function(RED)
                 else {
                     //Retry after 10 sec
                     setTimeout(function() {
-                        node.error("Retrying Inital Connection - Check that your IP is correct");
-                        sendError("any", node, "Failed Conection");
-                        tryToConnect();
+                        if(node.connected == false) {
+                            node.error("Retrying Inital Connection - Check that your IP is correct");
+                            sendError("any", node, "Failed Conection");
+                            tryToConnect();
+                        }
                     }, 30000);
                 }
             });
@@ -120,10 +128,7 @@ function connected(node) {
             setTimeout(function(){node.recentlySentMessage = false}, 30000);
         }
 
-        var value = consoles[node.console].recieve(message, node.midiChannel, node.server, node.syncActive, function(syncState) {
-            //Sync changed callback
-            node.syncActive = syncState;
-        });
+        var value = node.consoles[node.console].recieve(message, node.midiChannel, node.server);
 
 
         if((typeof value === "string")) {
@@ -131,7 +136,7 @@ function connected(node) {
             node.error("Function Error: " + value);
             sendError("any", node, "Function error check debug");
         }
-        else if(value != false){
+        else if(value != false && value != true && value != undefined){
             sendSuccess("any", node, "Got message!");
             sendMessage("any", node, value);
         }
@@ -145,7 +150,6 @@ function connect(node, isConnected) {
     //Set listeners
     node.server.on("close", function() {
         node.connected = false;
-        node.warn("Socket Closed");
         sendError("any", node, "Lost connection");
     });
 
@@ -191,31 +195,19 @@ function connect(node, isConnected) {
         node.connected = true;
         isConnected(true);
         
-        consoles[node.console].initialConnection(node.server, node.midiChannel);
+        node.consoles[node.console].initialConnection(node.server, node.midiChannel);
     });
-
-    //Failed connection
-    setTimeout(function() {
-        if(node.connected == false) {
-            isConnected(false);
-            sendError("any", node, "Failed connection check debug!");
-            node.error("Failed to connect, please check if we can connect");
-        }
-    }, 5000);
-
-
-    //If we're connected
-    if(node.connected) {
-    }
 }
 
 //Attempt reconnection
 function reConnect(node) {
+    
     if(node.connected) {
         sendError("any", node, "Attempting reconnection..");
     }
 
     if(node.server !== undefined) {
+        node.consoles[node.console].reset();
         node.server.end();
         node.connected = false;
 

@@ -17,15 +17,18 @@ module.exports = {
     recieve: function recieve(midiChannel, data, server, syncActive) {
         if(data[0] == 0xFE) {
             this.isConnected = true;
-            server.write(new Buffer.from([0xFE]));
-
             clearTimeout(this.waitForSenseTimeout);
             this.waitForSenseTimeout = setTimeout(function() {
                 this.isConnected = false;
-            }, 1000);
+            }, 5000);
         }
 
         return false;
+    },
+
+    //Send the data
+    getData() {
+        return undefined;
     },
 
     //Ping
@@ -34,6 +37,9 @@ module.exports = {
             if(this.isConnected === false) {
                 successFunction(false);
                 return true;
+            }
+            else {
+                successFunction(true);
             }
         }
         else {

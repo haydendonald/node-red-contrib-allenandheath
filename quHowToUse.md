@@ -20,73 +20,97 @@ var msg.payload = {
 ```
 
 
+## Fader Level (Get/Set)
+Sets/Gets the channel name
+- `function` "faderLevel"
+- `inputChannel` which is an array containing each input
 
+- `level` The level of the fader (0-100%)
+- `id` The raw id of the channel
 
-## Super Source Box Control (Get/Set)
-Controls the box control under the super source
-- `cmd` "superSourceBox"
-- `data` Array[superSourceID][boxID] where super source 1 box 3 will be Array[1][3]
-- `superSourceID` the super source to change the box on
-- `box` the box to change
-- `enabled` should the box be enabled?
-- `inputNumber` `videoSource` the input to set the box to (can be either a raw inputNumber or a videoSource object)
-- `xPosition` the x position
-- `yPosition` the y position
-- `size` the size of the box
-- `cropEnabled` should the crop be enabled?
-- `cropTop` the top crop position
-- `cropBottom` the bottom crop position
-- `cropLeft` the left crop position
-- `cropRight` the right crop position
-
-### Example message from the ATEM
+### Example message from the console
 ```
 var msg = {
     "payload": {
-        "cmd": "superSourceBox",
-        "data": {
-            //Super Source ID
+        "function": "channelName",
+        "inputChannel": {
             1: {
-                //Box ID
-                1: {
-                    "enabled": true,
-                    "inputNumber": 0,
-                    "videoSource": {
-                        "id": 0,
-                        "longName": "black"
-                    },
-                    "xPosition": 15.0,
-                    "yPosition": 20.0,
-                    "size": 1.0,
-                    "cropEnabled": true,
-                    "cropTop": 1.0,
-                    "cropBottom": 1.0,
-                    "cropLeft": 1.0,
-                    "cropRight": 1.0
-                },
-                2: {
-                    ....
-                }
+                "level": 100,
+                "id": 10
+            },
+            2: {
+                "level": 0
+                "id": 11
             }
         }
     }
 }
 ```
 
-### Example request to the ATEM
+### Example request to the console
 ```
-//Request to set the super source box on super source 1 box 4 to change input
+//Request to set the channel level
 var msg = {
     "payload": {
-        "cmd": "superSourceBox",
-        "data": {
-            "superSourceID": 1,
-            "box": 4,
-            "videoSource": {
-                "id": 5
-            }
+        "function": "channelLevel",
+        "channelType": "inputChannel",
+        "channel": "1",
+        "level": 100
+    }
+}
+```
 
-            //You don't need to set everything if a parameter is not set it will set it to what was read in
+```
+//Request to get channel levels
+var msg = {
+    "payload": {
+        "function": "channelLevel"
+    }
+}
+```
+
+## Channel Name (Get/Set)
+Sets/Gets the channel name
+- `function` "channelName"
+- `inputChannel` Array[channel] where each channel has `name` The channel name, `id` The raw id of the channel
+
+### Example message from the console
+```
+var msg = {
+    "payload": {
+        "function": "channelName",
+        "inputChannel": {
+            1: {
+                "name": "Hello World!",
+                "id": 10
+            },
+            2: {
+                "name": "Hello World!",
+                "id": 11
+            }
         }
     }
 }
+```
+
+### Example request to the console
+```
+//Request to set the channel name
+var msg = {
+    "payload": {
+        "function": "channelName",
+        "channelType": "inputChannel",
+        "channel": "1",
+        "name": "Nice"
+    }
+}
+```
+
+```
+//Request to get channel names
+var msg = {
+    "payload": {
+        "function": "channelName"
+    }
+}
+```
