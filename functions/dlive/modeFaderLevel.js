@@ -65,7 +65,7 @@ module.exports = {
     },
 
     //Recieved data
-    recieve: function recieve(midiChannel, data) {
+    recieve: function recieve(midiChannel, data, server, syncActive) {
         var msg = {payload:{}};
         msg.payload.function = "faderLevel";
         msg.payload.channelSelection = global.getChannelSelection(midiChannel, 0xB0, data[0], data[2]);

@@ -1,12 +1,14 @@
 var tcp = require('net');
-var modes = require("../functions/functions.js");
+//var modes = require("../functions/functions.js");
+
+var consoles = require("../functions/consoles.js");
 
 module.exports = function(RED)
 {
     module.exports.sendCommand = function(msg, sender, network) {
         var value = false;
 
-        value = modes.generatePacket(network.console, msg, network.server, network.midiChannel, function(msg) {
+        value = consoles[node.console].generatePacket(msg, network.server, network.midiChannel, function(msg) {
             sendMessage("any", network.node, msg);
         });
 
@@ -48,6 +50,7 @@ module.exports = function(RED)
         this.successCallbacks = [];
         this.messageCallbacks = [];
         this.console = config.console;
+        this.syncActive = true;
         this.node = this;
         var node = this.node;
         this.recentlySentMessage = false;
@@ -70,7 +73,7 @@ module.exports = function(RED)
                     this.connectionCheck = setInterval(function() {
                         if(node.connected && node.recentlySentMessage != true) {
                             sendSuccess("any", node, "Checking connection");
-                            var value = modes.sendPing(node.console, node.server, node.midiChannel, node.recentlySentMessage, function(success) {
+                            var value = consoles[node.console].sendPing(node.server, node.midiChannel, node.recentlySentMessage, function(success) {
                                 if(!success) {
                                     //Disconnected
                                     sendError("any", node, "Ping Failed");
@@ -112,16 +115,16 @@ function connected(node) {
 
     //When we get in some data
     node.server.on("data", function(message) {
-        console.log("QU IN");
-        console.log(message);
-
-
         if(!node.recentlySentMessage) {
             node.recentlySentMessage = true;
             setTimeout(function(){node.recentlySentMessage = false}, 30000);
         }
 
-        var value = modes.recieve(node.console, message, node.midiChannel);
+        var value = consoles[node.console].recieve(message, node.midiChannel, node.server, node.syncActive, function(syncState) {
+            //Sync changed callback
+            node.syncActive = syncState;
+        });
+
 
         if((typeof value === "string")) {
             //An Error Occurred
@@ -139,15 +142,56 @@ function connected(node) {
 function connect(node, isConnected) {
     node.server = new tcp.Socket();
 
-    node.server.on("data", function(message) {
-        console.log("incmomig");
-        console.log(message);
+    //Set listeners
+    node.server.on("close", function() {
+        node.connected = false;
+        node.warn("Socket Closed");
+        sendError("any", node, "Lost connection");
     });
+
+    node.server.on("timeout", function() {
+        node.error("A Timeout Occured, Assuming Disconnected");
+        sendError("any", node, "Failed connection check debug!");
+        reConnect(node); 
+    });
+
+    node.server.on("error", (e) => {      
+        switch(e.code) {
+            case "EADDRINUSE": {
+                node.error("Critical Error: Socket In Use");
+                sendError("any", node, "Failed connection check debug!");
+                clearInterval(node.connectionCheck);
+                node.connected = false;
+                break;
+            }
+            case "ECONNRESET": {
+                node.error("Error: Network Reset");
+                sendError("any", node, "Failed connection check debug!");
+                reConnect(node);
+                break;
+            }
+            case "EHOSTUNREACH": {
+                node.error("Error: Failed To Reach The Console");
+                sendError("any", node, "Failed connection check debug!");
+                setTimeout(function(){reConnect(node);}, 10000);
+                break;
+            }
+            default: {
+                node.error("An Error Occured " + e);
+                sendError("any", node, "Failed connection check debug!");
+                reConnect(node); 
+                break;
+            }
+        }
+    });
+
 
      //Attempt connection
      node.server.connect(node.port, node.ipAddress, function() {
         node.connected = true;
         isConnected(true);
+        
+        consoles[node.console].initialConnection(node.server, node.midiChannel);
     });
 
     //Failed connection
@@ -162,48 +206,6 @@ function connect(node, isConnected) {
 
     //If we're connected
     if(node.connected) {
-        //Set listeners
-        node.server.on("close", function() {
-            node.connected = false;
-            node.warn("Socket Closed");
-            sendError("any", node, "Lost connection");
-        });
-
-        node.server.on("timeout", function() {
-            node.error("A Timeout Occured, Assuming Disconnected");
-            sendError("any", node, "Failed connection check debug!");
-            reConnect(node); 
-        });
-
-        node.server.on("error", (e) => {      
-            switch(e.code) {
-                case "EADDRINUSE": {
-                    node.error("Critical Error: Socket In Use");
-                    sendError("any", node, "Failed connection check debug!");
-                    clearInterval(node.connectionCheck);
-                    node.connected = false;
-                    break;
-                }
-                case "ECONNRESET": {
-                    node.error("Error: Network Reset");
-                    sendError("any", node, "Failed connection check debug!");
-                    reConnect(node);
-                    break;
-                }
-                case "EHOSTUNREACH": {
-                    node.error("Error: Failed To Reach The Console");
-                    sendError("any", node, "Failed connection check debug!");
-                    setTimeout(function(){reConnect(node);}, 10000);
-                    break;
-                }
-                default: {
-                    node.error("An Error Occured " + e);
-                    sendError("any", node, "Failed connection check debug!");
-                    reConnect(node); 
-                    break;
-                }
-            }
-        });
     }
 }
 

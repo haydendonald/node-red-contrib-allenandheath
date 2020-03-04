@@ -5,18 +5,18 @@
 ```
 //Received Information Format
 var msg.payload = {
-    "mode": "The mode recieved",
+    "function": "The function recieved",
     ...
 }
 
 //Send Information Format
 var msg.payload = {
-    "mode": "The mode to perform",
+    "function": "The function to perform",
     "type": "get/set",
     ...
 }
 
-... = Specific mode parameters, see below modes for more
+... = Specific function parameters, see below functions for more
 ```
 
 

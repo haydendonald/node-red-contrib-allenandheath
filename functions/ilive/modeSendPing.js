@@ -6,7 +6,7 @@ module.exports = {
     },
 
     //Recieved data 
-    recieve: function recieve(midiChannel, data) {
+    recieve: function recieve(midiChannel, data, server, syncActive) {
         return false;
     },
 

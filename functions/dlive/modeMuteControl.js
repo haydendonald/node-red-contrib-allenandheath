@@ -39,7 +39,7 @@ module.exports = {
     },
 
     //Recieved data
-    recieve: function recieve(midiChannel, data) {
+    recieve: function recieve(midiChannel, data, server, syncActive) {
         var msg = {payload:{}};
         msg.payload.function = "muteControl";
         msg.payload.channelSelection = global.getChannelSelection(midiChannel, 0x90, data[0], data[1]);

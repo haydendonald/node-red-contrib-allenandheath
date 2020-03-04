@@ -39,7 +39,7 @@ module.exports = {
     },
 
     //Recieved data
-    recieve: function recieve(midiChannel, data) {
+    recieve: function recieve(midiChannel, data, server, syncActive) {
         var msg = {payload:{}};
         msg.payload.function = "faderLevel";
         if(data[0] != (0xB0 + parseInt(midiChannel, 16))){return false;}
