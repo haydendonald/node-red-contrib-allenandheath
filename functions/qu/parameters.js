@@ -90,6 +90,7 @@ module.exports = {
         channelName: require("./channelName.js"),
         muteControl: require("./muteControl.js"),
         faderLevel: require("./faderLevel.js"),
+        sceneRecall: require("./sceneRecall.js")
     },
 
     //Reset this object
@@ -153,7 +154,7 @@ module.exports = {
             object.recieveBuffer = Buffer.concat([object.recieveBuffer, msg]);
         }
 
-        return value;
+        return [value];
     },
 
     generatePacket: function(msg, server, midiChannel, returnPayload) {

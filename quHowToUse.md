@@ -155,3 +155,40 @@ var msg = {
     }
 }
 ```
+
+## Scene Recall (Get/Set)
+Recalls a scene
+- `function` "sceneRecall"
+- `currentScene` The current scene
+
+- `scene` The scene id to recall
+
+### Example message from the console
+```
+var msg = {
+    "payload": {
+        "function": "sceneRecall",
+        "currentScene": 1
+    }
+}
+```
+
+### Example request to the console
+```
+//Request to recall a scene
+var msg = {
+    "payload": {
+        "function": "sceneRecall",
+        "scene": 2
+    }
+}
+```
+
+```
+//Request to get the current scene
+var msg = {
+    "payload": {
+        "function": "sceneRecall"
+    }
+}
+```
