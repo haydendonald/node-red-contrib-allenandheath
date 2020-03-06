@@ -67,42 +67,49 @@ module.exports = {
 
     //Recieved data
     recieve: function recieve(midiChannel, data, server, syncActive) {
-        var temp = this;
-    
-        if(data[0] == 0x02) {
-            if(temp.data["inputChannel"] === undefined){
-                temp.data["inputChannel"] = {};
-            }
+        var object = this;
 
-            //Find the channel
-            var channelType = temp.parameters.channelTypes["inputChannel"];
-            var channel = "unknown";
-            Object.keys(channelType).forEach(function(key2) {
-                if(parseInt(channelType[key2]) == parseInt(data[1])) {
-                    channel = key2;
+        var ret = false;
+        for(var i = 0; i < data.length; i++) {
+            if(data.slice(i + 0, i + 9).equals(object.parameters.sysexHeader.currentHeader) == true && data[i + 9] == 0x02) {
+                //Find the end of the packet
+                var end = i;
+                for(var j = i; j < data.length; j++) {if(data[j] == 0xF7){end = j; break;}}
+
+                if(object.data["inputChannel"] === undefined){
+                    object.data["inputChannel"] = {};
                 }
-            });
 
-            temp.data["inputChannel"][channel] = {
-                "name": data.slice(2).toString(),
-                "id": data[1]
-            }
-
-            if(syncActive == false) {
-                var msg = {
-                    "payload": {
-                        "function": "channelName"
+                //Find the channel
+                var channelType = object.parameters.channelTypes["inputChannel"];
+                var channel = "unknown";
+                Object.keys(channelType).forEach(function(key2) {
+                    if(parseInt(channelType[key2]) == parseInt(data[i + 10])) {
+                        channel = key2;
                     }
-                }
-                
-                Object.assign(msg.payload, temp.data);
+                });
 
-                return msg;
+                object.data["inputChannel"][channel] = data.slice(i + 11, end).toString();
+
+                ret = true;
             }
-            return true;
         }
-        return false;
 
+        //If we found something and sync is not active send it out!
+        if(syncActive == false && ret == true) {
+            var msg = {
+                "payload": {
+                    "function": "channelName"
+                }
+            }
+            
+            Object.assign(msg.payload, object.data);
+
+            return msg;
+        }
+        else if(ret == true){return true;}
+
+        return false;
     },
 
     //Send the data

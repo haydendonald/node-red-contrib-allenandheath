@@ -1,124 +1,120 @@
 module.exports = {
     parameters: undefined,
-    channels: {},
+    data: {},
 
     setup: function(parameters) {
         this.parameters = parameters;
     },
 
+    reset: function() {
+        data = {};
+    },
+
     //Send out
     generatePacket: function generatePacket(msg, server, midiChannel, callback) {
-        // var temp = this;
-        // if(msg.payload.function == "channelName") {
-        //     if(msg.payload.channelType === undefined && msg.payload.channel === undefined && msg.payload.name === undefined) {
-        //         //Just return the stored information
-        //         var msg = {
-        //             "payload": {
-        //                 "function": "channelName"
-        //             }
-        //         }
+        var object = this;
+        if(msg.payload.function == "muteControl") {
+            if(msg.payload.channelType === undefined && msg.payload.channel === undefined && msg.payload.level === undefined) {
+                //Just return the stored information
+                var msg = {
+                    "payload": {
+                        "function": "muteControl"
+                    }
+                }
                 
-        //         Object.assign(msg.payload, temp.channels);
+                Object.assign(msg.payload, object.data);
 
-        //         callback(msg);
-        //         return true;
-        //     }
-        //     else {
-        //         var channelId = -1;
-        //         if(msg.payload.rawChannel !== undefined) {
-        //             channelId = parseInt(msg.payload.rawChannel);
-        //         }
-        //         else {
-        //             if(msg.payload.channelType === undefined){return "channelType is not specified";}
-        //             if(msg.payload.channel === undefined){return "channel is not specified";}
+                callback(msg);
+                return true;
+            }
+            else {
+                var channelId = -1;
+                if(msg.payload.rawChannel !== undefined) {
+                    channelId = parseInt(msg.payload.rawChannel);
+                }
+                else {
+                    if(msg.payload.channelType === undefined){return "channelType is not specified";}
+                    if(msg.payload.channel === undefined){return "channel is not specified";}
 
-        //             //Find the channel id
-        //             channelId = temp.parameters.channelTypes[msg.payload.channelType][msg.payload.channel];
-        //             if(channelId === undefined){return "channel id was not found";}
+                    //Find the channel id
+                    channelId = object.parameters.channelTypes[msg.payload.channelType][msg.payload.channel];
+                    if(channelId === undefined){return "channel id was not found";}
 
-        //         }
-        //         if(msg.payload.name === undefined){return "name is not specified";}
+                }
+                if(msg.payload.state === undefined){return "state is not specified";}
+                var state = msg.payload.state == true ? 0x7F : 0x3F;
 
-        //         //Generate the packet!
-        //         var retMsg = {
-        //             "payload": {
-        //                 "function": "channelName"
-        //             }
-        //         }
+                //Generate the packet!
+                var retMsg = {
+                    "payload": {
+                        "function": "muteControl"
+                    }
+                }
                 
-        //         temp.channels[msg.payload.channelType][msg.payload.channel].name = msg.payload.name;
-        //         Object.assign(retMsg.payload, temp.channels);
-        //         callback(retMsg);
+                try {
+                    object.data[msg.payload.channelType][msg.payload.channel] = msg.payload.state;
+                    Object.assign(retMsg.payload, object.data);
+                    callback(retMsg);
+                }
+                catch(e){}
 
-        //         return Buffer.concat([Buffer.from(temp.parameters.sysexHeader.currentHeader), Buffer.from([0x03, channelId]), Buffer.from(msg.payload.name), Buffer.from([0xF7])]);
-        //     }
-        // }
-
+                return Buffer.from([(0x90 + parseInt(midiChannel, 16)), channelId, state, (0x80 + parseInt(midiChannel, 16)), channelId, 0x00]);
+            }
+        }
 
         return false;
     },
 
     //Recieved data
     recieve: function recieve(midiChannel, data, server, syncActive) {
-        var temp = this;
+        var object = this;
 
-        //if(data[0] != (0x90 + parseInt(midiChannel, 16))){return false;}
+        var ret = false;
+        for(var i = 0; i < data.length; i++) {
+            if(data[i + 0] == (0x90 + parseInt(midiChannel, 16))) {
+                if(data[i + 2] == 0x7F || data[i + 2] == 0x3F) {
+                    if(object.data["inputChannel"] === undefined){
+                        object.data["inputChannel"] = {};
+                    }
 
+                    //Find the channe;
+                    var channelType = undefined;
+                    var channel = undefined;
+                    Object.keys(object.parameters.channelTypes).forEach(function(key) {
+                        Object.keys(object.parameters.channelTypes[key]).forEach(function(key2) {
 
-        //if(data[0] != (0x90 + parseInt(midiChannel, 16))){return false;}
+                            if(parseInt(object.parameters.channelTypes[key][key2]) == parseInt(data[i + 1])) {
+                                channelType = key;
+                                channel = key2;
+                            }
+                        });
+                    });
 
-       // console.log(data);
+                    if(object.data[channelType] === undefined){
+                        object.data[channelType] = {};
+                    }
+                    object.data[channelType][channel] = data[i + 2] == 0x7F;
 
+                    ret = true;
+                }
+            }
+        }
 
+        //If we found something and sync is not active send it out!
+        if(syncActive == false && ret == true) {
+            var msg = {
+                "payload": {
+                    "function": "muteControl"
+                }
+            }
+            
+            Object.assign(msg.payload, object.data);
 
+            return msg;
+        }
+        else if(ret == true){return true;}
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-        // if(data[0] == 0x02) {
-        //     if(temp.channels["inputChannel"] === undefined){
-        //         temp.channels["inputChannel"] = {};
-        //     }
-
-        //     //Find the channel
-        //     var channelType = temp.parameters.channelTypes["inputChannel"];
-        //     var channel = "unknown";
-        //     Object.keys(channelType).forEach(function(key2) {
-        //         if(parseInt(channelType[key2]) == parseInt(data[1])) {
-        //             channel = key2;
-        //         }
-        //     });
-
-        //     temp.channels["inputChannel"][channel] = {
-        //         "name": data.slice(2).toString(),
-        //         "id": data[1]
-        //     }
-
-        //     if(syncActive == false) {
-        //         var msg = {
-        //             "payload": {
-        //                 "function": "channelName"
-        //             }
-        //         }
-                
-        //         Object.assign(msg.payload, temp.channels);
-
-        //         return msg;
-        //     }
-        //     return true;
-        // }
-        // return false;
-
+        return false;
     },
 
     //Send the data

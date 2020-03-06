@@ -4,6 +4,7 @@ module.exports = {
         currentHeader: undefined
     },
     syncActive: true,
+    recieveBuffer: new Buffer(0),
     channelTypes: {
         "inputChannel": {
             "1": 0x20,
@@ -103,60 +104,54 @@ module.exports = {
     },
 
     recieve: function(msg, midiChannel, server) {
-        var messages = [];
-        var current = [];
-        for(var i = 0; i < msg.length; i++) {
-            current.push(msg[i]);
-            if(msg[i] == 0xF7){messages.push(current); current = [];}
-        }
-        if(messages.length == 0){messages = [current];}
+        var object = this;
+        var value = [];
+        //Only process commands when FE is recieved
+        if(msg[0] == 0xFE) {
+            server.write(Buffer.from([0xFE]));
 
-        var value = false;
-        for(var i = 0; i < messages.length; i++) {
-            var temp = this;
-
-            if(temp.sysexHeader.currentHeader === undefined) {
-                //Attempt to get the sysex header
-                if(temp.syncActive === true) {
-                    if(temp.sysexHeader.currentHeader === undefined) {
-                        if(Buffer.from(messages[i]).length == 14) {
-                            //Valid inital connection flag
-                            temp.sysexHeader.currentHeader = Buffer.from(messages[i]).slice(0, 9);
+            //Attempt to get the sysex header if required
+            if(object.sysexHeader.currentHeader === undefined) {
+                if(object.syncActive === true) {
+                    if(object.sysexHeader.currentHeader === undefined) {
+                        //Search for this command
+                        for(var i = 0; i < object.recieveBuffer.length; i++) {
+                            if(object.recieveBuffer[i + 0] == 0xF0 && object.recieveBuffer[i + 13] == 0xF7) {
+                                object.sysexHeader.currentHeader = object.recieveBuffer.slice(i + 0, i + 9);
+                            }
                         }
                     }              
                 }
             }
             else {
-                //Check that the sysex header is correct and remove it if needed
-                var message = Buffer.from(messages[i]);
-                if(message.slice(0, 9).equals(temp.sysexHeader.currentHeader) == true) {
-                    message = message.slice(9);
-                }
+                //Find the function and process
+                Object.keys(object.functions).forEach(function(key) {
+                    var temp = object.functions[key].recieve(midiChannel, object.recieveBuffer, server, object.syncActive);
+                    if(temp !== false && temp !== true) {
+                        value.push(temp);  
+                    }
+                });
 
                 //Check if we have finished syncing    
-                if(temp.sysexHeader.currentHeader !== undefined && temp.syncActive == true) {
-                    if(message[0] == 0x14 && message[1] == 0xF7) {
-                        temp.syncActive = false;
+                if(object.sysexHeader.currentHeader !== undefined && object.syncActive == true) {
+                    object.syncActive = false;
 
-                        
-                        //Send out all the initial data
-                        var msgs = [];
-                        Object.keys(temp.functions).forEach(function(key) {
-                            msgs.push(temp.functions[key].getData());
-                        });
+                    //Send out all the initial data
+                    var msgs = [];
+                    Object.keys(object.functions).forEach(function(key) {
+                        msgs.push(object.functions[key].getData());
+                    });
 
-                        return [msgs];
-                    }
+                    return [msgs];
                 }
-
-                //Find the function and process
-                Object.keys(temp.functions).forEach(function(key) {
-                    value = temp.functions[key].recieve(midiChannel, message, server, temp.syncActive); //Needs to handle breaking when the command worked
-                });
+                //Clear the buffer
+                object.recieveBuffer = new Buffer(0);
             }
+        
         }
-
-        server.write(Buffer.from([0xFE]));
+        else {
+            object.recieveBuffer = Buffer.concat([object.recieveBuffer, msg]);
+        }
 
         return value;
     },
@@ -189,6 +184,7 @@ module.exports = {
 
     //Send message on initial connection
     initialConnection: function(server, midiChannel) {
+
         //Setup supported functions
         var temp = this;
         Object.keys(this.functions).forEach(function(func){

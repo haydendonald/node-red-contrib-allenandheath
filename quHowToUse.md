@@ -11,38 +11,81 @@ var msg.payload = {
 
 //Send Information Format
 var msg.payload = {
-    "function": "The function to perform",
-    "type": "get/set",
+    "function": "functionName",
+    "channelType": "inputChannel",
+    "channel": "channelNumber",
     ...
 }
 
 ... = Specific function parameters, see below functions for more
 ```
 
-
-## Fader Level (Get/Set)
-Sets/Gets the channel name
-- `function` "faderLevel"
+## Mute Control (Get/Set)
+Sets/Gets the mute state of a channel
+- `function` "muteControl"
 - `inputChannel` which is an array containing each input
 
-- `level` The level of the fader (0-100%)
-- `id` The raw id of the channel
+- `channelType` The channel type to set
+- `channel` The channel id
+- `state` The state of the mute (true/false)
+- `rawChannel` The raw channel to set (See QU documentation for channel listing)
 
 ### Example message from the console
 ```
 var msg = {
     "payload": {
-        "function": "channelName",
+        "function": "muteControl",
         "inputChannel": {
-            1: {
-                "level": 100,
-                "id": 10
-            },
-            2: {
-                "level": 0
-                "id": 11
-            }
+            1: true,
+            2: false
         }
+        ...
+    }
+}
+```
+
+### Example request to the console
+```
+//Request to set the mute to on for channel 1
+var msg = {
+    "payload": {
+        "function": "muteControl",
+        "channelType": "inputChannel",
+        "channel": "1",
+        "state": true
+    }
+}
+```
+
+```
+//Request to get channel levels
+var msg = {
+    "payload": {
+        "function": "muteControl"
+    }
+}
+```
+
+
+## Fader Level (Get/Set)
+Sets/Gets the channel fader level
+- `function` "faderLevel"
+- `inputChannel` which is an array containing each input
+
+- `channelType` The channel type to set
+- `channel` The channel id
+- `level` The level of the fader (0-100%)
+
+### Example message from the console
+```
+var msg = {
+    "payload": {
+        "function": "faderLevel",
+        "inputChannel": {
+            1: 100,
+            2:  0
+        }
+        ...
     }
 }
 ```
@@ -52,7 +95,7 @@ var msg = {
 //Request to set the channel level
 var msg = {
     "payload": {
-        "function": "channelLevel",
+        "function": "faderLevel",
         "channelType": "inputChannel",
         "channel": "1",
         "level": 100
@@ -64,7 +107,7 @@ var msg = {
 //Request to get channel levels
 var msg = {
     "payload": {
-        "function": "channelLevel"
+        "function": "faderLevel"
     }
 }
 ```
@@ -72,7 +115,11 @@ var msg = {
 ## Channel Name (Get/Set)
 Sets/Gets the channel name
 - `function` "channelName"
-- `inputChannel` Array[channel] where each channel has `name` The channel name, `id` The raw id of the channel
+- `inputChannel` Array of the channels
+
+- `channelType` The channel type to set
+- `channel` The channel id
+- `name` The string to set the channel name to
 
 ### Example message from the console
 ```
@@ -80,14 +127,8 @@ var msg = {
     "payload": {
         "function": "channelName",
         "inputChannel": {
-            1: {
-                "name": "Hello World!",
-                "id": 10
-            },
-            2: {
-                "name": "Hello World!",
-                "id": 11
-            }
+            1: "Hello World!",
+            2: "Hello World!"
         }
     }
 }

@@ -52,7 +52,7 @@ module.exports = {
                 }
                 
                 try {
-                    temp.data[msg.payload.channelType][msg.payload.channel] = level;
+                    temp.data[msg.payload.channelType][msg.payload.channel] = msg.payload.level;
                     Object.assign(retMsg.payload, temp.data);
                     callback(retMsg);
                 }
@@ -72,62 +72,57 @@ module.exports = {
 
     //Recieved data
     recieve: function recieve(midiChannel, data, server, syncActive) {
-        var temp = this;
-        if(data[0] == (0xB0 + parseInt(midiChannel, 16))){
-            //NRPN command
-            var messages = [];
-            var current = [];
-            for(var i = 0; i < data.length; i++) {
-                current.push(data[i]);
-                if(current.length == 12) {
-                    //We have a message process it
+        var object = this;
 
-                    var valid = true;
-                    if(current[1] != 0x63){valid = false;}
-                    if(current[3] != (0xB0 + parseInt(midiChannel, 16))){valid = false;}
-                    if(current[4] != 0x62){valid = false;}
-                    if(current[5] != 0x17){valid = false;}
-                    if(current[6] != (0xB0 + parseInt(midiChannel, 16))){valid = false;}
-                    if(current[7] != 0x06){valid = false;}
-                    if(current[9] != (0xB0 + parseInt(midiChannel, 16))){valid = false;}
-                    if(current[10] != 0x26){valid = false;}
-                    if(current[11] != 0x07){valid = false;}
+        var ret = false;
+        for(var i = 0; i < data.length; i++) {
+            if(data[i + 0] == (0xB0 + parseInt(midiChannel, 16)) && data[i + 3] == (0xB0 + parseInt(midiChannel, 16)) && data[i + 6] == (0xB0 + parseInt(midiChannel, 16)) && data[i + 9] == (0xB0 + parseInt(midiChannel, 16))) {
+                if(data[i + 1] == 0x63 && data[i + 4] == 0x62 && data[i + 7] == 0x06 && data[i + 10] == 0x26 && data[i + 11] == 0x07) {
+                    //Valid NRPN command
 
-                    if(valid == true){
+                    //Fader
+                    if(data[i + 5] == 0x17) {
+                        if(object.data["inputChannel"] === undefined){
+                            object.data["inputChannel"] = {};
+                        }
+
+                        //Find the channe;
                         var channelType = undefined;
                         var channel = undefined;
-                        Object.keys(temp.parameters.channelTypes).forEach(function(key) {
-                            Object.keys(temp.parameters.channelTypes[key]).forEach(function(key2) {
+                        Object.keys(object.parameters.channelTypes).forEach(function(key) {
+                            Object.keys(object.parameters.channelTypes[key]).forEach(function(key2) {
 
-                                if(parseInt(temp.parameters.channelTypes[key][key2]) == parseInt(current[2])) {
+                                if(parseInt(object.parameters.channelTypes[key][key2]) == parseInt(data[i + 2])) {
                                     channelType = key;
                                     channel = key2;
                                 }
                             });
                         });
 
-                        if(temp.data[channelType] === undefined){
-                            temp.data[channelType] = {};
+                        if(object.data[channelType] === undefined){
+                            object.data[channelType] = {};
                         }
-                        temp.data[channelType][channel] = current[8];
-                    }
-                    
-                    current = [];
-                }
-            }
+                        object.data[channelType][channel] = (data[i + 8] / 127) * 100;
 
-            if(syncActive === false) {
-                var msg = {
-                    "payload": {
-                        "function": "faderLevel"
+                        ret = true;
                     }
                 }
-                
-                Object.assign(msg.payload, temp.data);
-                return msg;
             }
-            return true;
         }
+
+        //If we found something and sync is not active send it out!
+        if(syncActive == false && ret == true) {
+            var msg = {
+                "payload": {
+                    "function": "faderLevel"
+                }
+            }
+            
+            Object.assign(msg.payload, object.data);
+
+            return msg;
+        }
+        else if(ret == true){return true;}
 
         return false;
     },

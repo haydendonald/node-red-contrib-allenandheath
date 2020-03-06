@@ -171,7 +171,7 @@ function connect(node, isConnected) {
             case "ECONNRESET": {
                 node.error("Error: Network Reset");
                 sendError("any", node, "Failed connection check debug!");
-                reConnect(node);
+                setTimeout(function(){reConnect(node);}, 30000);
                 break;
             }
             case "EHOSTUNREACH": {
