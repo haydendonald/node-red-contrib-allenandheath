@@ -109,7 +109,8 @@ module.exports = {
         var value = [];
         //Only process commands when FE is recieved
         if(msg[0] == 0xFE) {
-            server.write(Buffer.from([0xFE]));
+            try{server.write(Buffer.from([0xFE]));}
+            catch(e){console.log("Failed to send heartbeat packet"); console.log(e); return false;}
 
             //Attempt to get the sysex header if required
             if(object.sysexHeader.currentHeader === undefined) {
@@ -195,7 +196,8 @@ module.exports = {
 
         //Ask for system state
         var buffer = Buffer.concat([new Buffer.from(this.sysexHeader.allCall), new Buffer.from([0x10, 0x01, 0xF7])]);
-        server.write(buffer);
+        try {server.write(buffer);}
+        catch(e) {console.log("Failed to send packet! "); console.log(e);}
         return true;
     }
 }
