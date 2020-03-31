@@ -1,6 +1,4 @@
 var tcp = require('net');
-//var modes = require("../functions/functions.js");
-
 
 module.exports = function(RED)
 {
@@ -54,7 +52,7 @@ module.exports = function(RED)
         this.successCallbacks = [];
         this.messageCallbacks = [];
         this.console = config.console;
-        this.consoles = require("../functions/consoles.js");
+        this.consoles = require("../functions/consoles.js").object();
         this.node = this;
         var node = this.node;
         this.recentlySentMessage = false;
