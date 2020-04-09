@@ -59,7 +59,7 @@ module.exports = function(RED)
         //On close disconnect
         this.on("close", function() {
             node.server.end();
-            this.server.destroy();
+            node.server.destroy();
             node.connected = false;
             node.server = new tcp.Socket();
             node.consoles[node.console].reset();
