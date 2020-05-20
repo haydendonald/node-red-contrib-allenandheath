@@ -69,33 +69,35 @@ module.exports = function(RED)
         var tryToConnect = function() {
             node.log("Attempting Inital Connection");
             connect(node, function(state) {
-                if(state) {
+                if(state === true) {
                     connected(node);
                     //Check for console connection every 10s
                     clearInterval(this.connectionCheck);
 
                     this.connectionCheck = setInterval(function() {
-                        if(node.connected && node.recentlySentMessage != true) {
-                            sendSuccess("any", node, "Checking connection");
-                            var value = node.consoles[node.console].sendPing(node.server, node.midiChannel, node.recentlySentMessage, function(success) {
-                                if(success == false) {
-                                    //Disconnected
-                                    sendError("any", node, "Ping Failed");
-                                    reConnect(node); 
+                        if(node.connected) {
+                            if(node.recentlySentMessage != true) {
+                                sendSuccess("any", node, "Checking connection");
+                                var value = node.consoles[node.console].sendPing(node.server, node.midiChannel, node.recentlySentMessage, function(success) {
+                                    if(success == false) {
+                                        //Disconnected
+                                        sendError("any", node, "Ping Failed");
+                                        reConnect(node); 
+                                    }
+                                    else {
+                                        sendSuccess("any", node, "Connected");
+                                    }
+                                });
+                                if(value != true) {
+                                    node.error("Failed To Send Ping: " + value);
+                                    sendError("any", node, "Sending Ping Failed");
                                 }
-                                else {
-                                    sendSuccess("any", node, "Connected");
-                                }
-                            });
-                            if(value != true) {
-                                node.error("Failed To Send Ping: " + value);
-                                sendError("any", node, "Sending Ping Failed");
                             }
                         }
                         else {
                             reConnect(node);             
                         }
-                    }, 30000);
+                    }, 10000);
                 }
                 else {
                     //Retry after 10 sec
@@ -199,7 +201,6 @@ function connect(node, isConnected) {
 
 //Attempt reconnection
 function reConnect(node) {
-    
     if(node.connected) {
         sendError("any", node, "Attempting reconnection..");
     }
@@ -207,10 +208,11 @@ function reConnect(node) {
     if(node.server !== undefined) {
         node.consoles[node.console].reset();
         node.server.end();
+        node.server.destroy();
         node.connected = false;
 
         connect(node, function(state) {
-            if(state) {
+            if(state === true) {
                 connected(node);
             }
         });
