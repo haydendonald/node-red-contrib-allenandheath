@@ -16,15 +16,12 @@ module.exports = {
 
         //Recieved data 
         recieve: function recieve(midiChannel, data, server, syncActive) {
-            if(data[0] == 0xFE) {
-                this.isConnected = true;
-                clearTimeout(this.waitForSenseTimeout);
-                this.waitForSenseTimeout = setTimeout(function() {
-                    this.isConnected = false;
-                }, 5000);
-            }
-
-            return false;
+            var object = this;
+            object.isConnected = true;
+            clearTimeout(object.waitForSenseTimeout);
+            object.waitForSenseTimeout = setTimeout(function() {
+                object.isConnected = false;
+            }, 5000);
         },
 
         //Send the data
@@ -33,15 +30,10 @@ module.exports = {
         },
 
         //Ping
-        sendPing: function sendPing(server, midiChannel, recentlySentMessage, successFunction) {
-            if(!recentlySentMessage) {
-                if(this.isConnected === false) {
-                    successFunction(false);
-                    return true;
-                }
-                else {
-                    successFunction(true);
-                }
+        sendPing: function sendPing(server, midiChannel, successFunction) {
+            if(this.isConnected === false) {
+                successFunction(false);
+                return true;
             }
             else {
                 successFunction(true);

@@ -172,13 +172,13 @@ module.exports = {
             return value;
         },
 
-        sendPing: function(server, midiChannel, recentlySentMessage, successFunction) {
+        sendPing: function(server, midiChannel, successFunction) {
             var value = false;
             var temp = this;
             Object.keys(temp.functions).forEach(function(key){
                 if(value === false) {
                     var func = temp.functions[key];
-                    value = func.sendPing(server, midiChannel, recentlySentMessage, successFunction);
+                    value = func.sendPing(server, midiChannel, successFunction);
                 }
             });
 
@@ -187,8 +187,6 @@ module.exports = {
 
         //Send message on initial connection
         initialConnection: function(server, midiChannel) {
-
-            //Setup supported functions
             var temp = this;
             Object.keys(this.functions).forEach(function(func){
                 var mode = temp.functions[func];   
@@ -198,7 +196,7 @@ module.exports = {
             //Ask for system state
             var buffer = Buffer.concat([new Buffer.from(this.sysexHeader.allCall), new Buffer.from([0x10, 0x01, 0xF7])]);
             try {server.write(buffer);}
-            catch(e) {console.log("Failed to send packet! "); console.log(e);}
+            catch(e) {console.log("Failed to send packet! "); console.log(e); return false;}
             return true;
         }
     }}

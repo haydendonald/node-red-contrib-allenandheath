@@ -126,7 +126,7 @@ module.exports = {
         },
 
         //Ping
-        sendPing: function sendPing(server, midiChannel, recentlySentMessage, successFunction) {
+        sendPing: function sendPing(server, midiChannel, successFunction) {
             return false;
         }
     }}

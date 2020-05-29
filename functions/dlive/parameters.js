@@ -37,13 +37,13 @@ module.exports = {
         return value;
     },
 
-    sendPing: function(server, midiChannel, recentlySentMessage, successFunction) {
+    sendPing: function(server, midiChannel, successFunction) {
         var value = false;
         var temp = this;
         Object.keys(temp.functions).forEach(function(key){
             if(value === false) {
                 var func = temp.functions[key];
-                value = func.sendPing(server, midiChannel, recentlySentMessage, successFunction);
+                value = func.sendPing(server, midiChannel, successFunction);
             }
         });
 
