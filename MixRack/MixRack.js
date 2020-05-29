@@ -9,7 +9,7 @@ module.exports = function(RED)
         node.status({fill:"gray",shape:"dot",text:"Waiting"});
 
         //On error
-        AHNetwork.addErrorCallback(network, function(sender, message) {
+        network.addErrorCallback(function(sender, message) {
             if(sender.id == node.id) {
                 node.status({fill:"red",shape:"dot",text:message});
             }
@@ -19,7 +19,7 @@ module.exports = function(RED)
         }); 
 
         //On success
-        AHNetwork.addSuccessCallback(network, function(sender, message) {
+        network.addSuccessCallback(function(sender, message) {
             if(sender.id == node.id) {
                 node.status({fill:"green",shape:"dot",text:message});
             }
@@ -29,7 +29,7 @@ module.exports = function(RED)
         }); 
 
         //On message
-        AHNetwork.addMessageCallback(network, function(sender, message) {
+        network.addMessageCallback(function(sender, message) {
             //If the message is for this device
             if(sender.id == node.id) {
                 //Most likley a error
@@ -47,7 +47,7 @@ module.exports = function(RED)
 
         //When a request is received on the input
         this.on("input", function(msg) {
-            AHNetwork.sendCommand(msg, node, network);
+            network.sendCommand(msg, node, network);
         });
     }
 
