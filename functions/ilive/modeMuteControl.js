@@ -40,6 +40,15 @@ module.exports = {
             buffer.writeUInt8(state, 2);
             buffer.writeUInt8(msg.payload.channel, 3);
             buffer.writeUInt8(0x00, 4);
+
+            //Send our new value to the output
+            self.values[msg.payload.channel] = msg.payload.state;
+            callback({
+                "payload": {
+                    "function": "muteControl",
+                    "states": self.values
+                }
+            });
             return buffer;
         }
         else {

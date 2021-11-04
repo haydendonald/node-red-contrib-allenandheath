@@ -44,6 +44,15 @@ module.exports = {
             buffer.writeUInt8(0x17, 4);
             buffer.writeUInt8(0x06, 5);
             buffer.writeUInt8(faderValue, 6);
+
+            //Send our new value to the output
+            self.values[msg.payload.channel] = faderValue;
+            callback({
+                "payload": {
+                    "function": "faderControl",
+                    "levels": self.values
+                }
+            });
             return buffer;
         }
         else {

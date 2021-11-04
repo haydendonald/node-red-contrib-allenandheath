@@ -27,7 +27,6 @@ module.exports = {
                 return "msg.payload.type is not supported by this function, it only supports setting";
             }
 
-
             //Validate
             if (!Number.isInteger(parseInt(msg.payload.sceneNumber))) { return "No msg.payload.sceneNumber\n"; }
             if (msg.payload.sceneNumber < 0 || msg.payload.sceneNumber > 128) { return "msg.payload.sceneNumber out of bounds. Needs to be between 0 and 128"; }
@@ -42,6 +41,15 @@ module.exports = {
             buffer.writeUInt8(offset, 2);
             buffer.writeUInt8((0xC0 + parseInt(midiChannel, 16)), 3);
             buffer.writeUInt8(sceneNumber, 4);
+
+            //Send our new value to the output
+            self.scene = msg.payload.sceneNumber;
+            callback({
+                "payload": {
+                    "function": "sceneRecall",
+                    "sceneNumber": self.scene
+                }
+            });
             return buffer;
         }
         else {
