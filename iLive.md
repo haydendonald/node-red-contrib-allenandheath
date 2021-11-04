@@ -29,7 +29,7 @@ var msg.payload = {
 # Limitations
 Due to the iLive protocol not having the ability to get initial values the values stored may be incorrect or missing!
 
-## Mute Control (Set)
+## Mute Control (Get/Set)
 Sets the mute state of a channel
 - `function` "muteControl"
 - `channel` The channel to control
@@ -61,7 +61,6 @@ var msg = {
 ### Example get from the console
 Due to limitations on the iLive protocol these values may be unpopulated until updated!
 ```
-//Request to get channel levels
 var msg = {
     "payload": {
         "function": "muteControl"
@@ -109,7 +108,6 @@ var msg = {
 ### Example get from the console
 Due to limitations on the iLive protocol these values may be unpopulated until updated!
 ```
-//Request to get channel levels
 var msg = {
     "payload": {
         "function": "faderControl"
@@ -125,7 +123,7 @@ var msg = {
 }
 ```
 
-## Scene Control (Set)
+## Scene Control (Get/Set)
 Recall a scene on the console 
 - `function` "sceneRecall"
 - `sceneNumber` The scene number
@@ -147,6 +145,24 @@ var msg = {
     "payload": {
         "function": "sceneRecall",
         "sceneNumber": 0
+    }
+}
+```
+
+### Example get from the console
+Due to limitations on the iLive protocol these values may be unpopulated until updated!
+```
+var msg = {
+    "payload": {
+        "function": "sceneRecall"
+    }
+}
+
+//Returns 
+var msg = {
+    "payload": {
+        "function": "sceneRecall",
+        "scene": 0
     }
 }
 ```
