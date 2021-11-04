@@ -58,6 +58,25 @@ var msg = {
 }
 ```
 
+### Example get from the console
+Due to limitations on the iLive protocol these values may be unpopulated until updated!
+```
+//Request to get channel levels
+var msg = {
+    "payload": {
+        "function": "muteControl"
+    }
+}
+
+//Returns 
+var msg = {
+    "payload": {
+        "function": "muteControl",
+        "states": {}
+    }
+}
+```
+
 ## Fader Control (Get/Set)
 Sets the fader level of a channel
 - `function` "faderControl"
@@ -94,6 +113,14 @@ Due to limitations on the iLive protocol these values may be unpopulated until u
 var msg = {
     "payload": {
         "function": "faderControl"
+    }
+}
+
+//Returns 
+var msg = {
+    "payload": {
+        "function": "faderControl",
+        "levels": {}
     }
 }
 ```

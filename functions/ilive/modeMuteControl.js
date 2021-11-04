@@ -4,9 +4,23 @@
 //Mute Off 9[N] [CH] 3F [CH] 00
 
 module.exports = {
+    values: {},
+
     //Send out
-    generatePacket: function generatePacket(msg, server, midiChannel) {
+    generatePacket: function generatePacket(msg, server, midiChannel, callback) {
+        var self = this;
         if (msg.payload.function == "muteControl") {
+
+            //Send the stored values if we only get the function
+            if (msg.payload.channel === undefined && msg.payload.state === undefined) {
+                callback({
+                    "payload": {
+                        "function": "muteControl",
+                        "states": self.values
+                    }
+                });
+                return true;
+            }
 
             //Need to add support for msg.payload.type="get/set"
             if (msg.payload.type !== undefined) {
@@ -35,6 +49,7 @@ module.exports = {
 
     //Recieved data
     recieve: function recieve(midiChannel, data, server, syncActive, parent) {
+        var self = this;
         var msgs = [];
         var remove = [];
         for (var i = 0; i < data.length; i++) {
@@ -49,6 +64,8 @@ module.exports = {
                         }
                     });
 
+                    self.values[data[i + 1]] = data[i + 2] == 0x7F;
+
                     //Remove it from the buffer
                     remove.push(i);
                 }
@@ -56,11 +73,11 @@ module.exports = {
         }
 
         //Remove all the index's from our buffer
-        for(var i = 0; i < remove.length; i++) {
+        for (var i = 0; i < remove.length; i++) {
             data = Buffer.concat([data.slice(0, remove[i]), data.slice(remove[i] + 5)]);
         }
         parent.receiveBuffer = data;
-        if(msgs.length == 0) {
+        if (msgs.length == 0) {
             return false;
         }
         return [msgs];
