@@ -7,6 +7,7 @@ module.exports = {
     },
 
     receiveBuffer: new Buffer.alloc(0),
+    bufferClearer: undefined,
 
     recieve: function (msg, midiChannel, server) {
         var value = false;
@@ -22,6 +23,13 @@ module.exports = {
                 break;
             }
         }
+
+        //After a second of inactivity clear the buffer
+        clearTimeout(self.bufferClearer);
+        self.bufferClearer = setTimeout(function() {
+            self.receiveBuffer = new Buffer.alloc(0);
+        }, 1000);
+
         return value;
     },
 
