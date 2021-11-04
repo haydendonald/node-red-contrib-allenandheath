@@ -37,6 +37,7 @@ module.exports = function(RED) {
             });
 
             this.server.on("data", function(message) {
+               // console.log(message);
                 var value = object.consoles[object.console].recieve(message, object.midiChannel, object.server);
                 if((typeof value === "string")) {
                     //An Error Occurred

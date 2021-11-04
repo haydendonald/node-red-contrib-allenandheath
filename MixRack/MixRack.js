@@ -32,7 +32,7 @@ module.exports = function(RED)
         network.addMessageCallback(function(sender, message) {
             //If the message is for this device
             if(sender.id == node.id) {
-                //Most likley a error
+                //Most likely an error
                 node.send(message);
 
             }
