@@ -58,11 +58,11 @@ var msg = {
 }
 ```
 
-## Fader Control (Set)
+## Fader Control (Get/Set)
 Sets the fader level of a channel
 - `function` "faderControl"
 - `channel` The channel to control
-- `level' The level of the channel 0-127
+- `level` The level of the channel 0-127
 
 ### Example message from the console
 ```
@@ -83,6 +83,17 @@ var msg = {
         "function": "faderControl",
         "channel": "1",
         "state": 0-127
+    }
+}
+```
+
+### Example get from the console
+Due to limitations on the iLive protocol these values may be unpopulated until updated!
+```
+//Request to get channel levels
+var msg = {
+    "payload": {
+        "function": "faderControl"
     }
 }
 ```

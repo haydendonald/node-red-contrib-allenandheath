@@ -3,9 +3,23 @@
 //B[ID] 63 [CH] 62 17 06 [LV00-7F]
 
 module.exports = {
+    values: {},
+
     //Send out
-    generatePacket: function generatePacket(console, server, midiChannel) {
-        if (msg.payload.function == "faderLevel") {
+    generatePacket: function generatePacket(msg, server, midiChannel, callback) {
+        var self = this;
+        if (msg.payload.function == "faderControl") {
+
+            //Send the stored values if we only get the function
+            if(msg.payload.channel === undefined && msg.payload.level === undefined) {
+                callback({
+                    "payload": {
+                        "function": "faderControl",
+                        "levels": self.values
+                    }
+                });
+                return true;
+            }
 
             //Need to add support for msg.payload.type="get/set"
             if (msg.payload.type !== undefined) {
@@ -20,7 +34,6 @@ module.exports = {
             var faderValue = parseInt(msg.payload.level);
             if (faderValue > 127) { faderValue = 127; }
             if (faderValue < 0) { faderValue = 0; }
-
 
             //Send out request
             var buffer = new Buffer(7);
@@ -40,6 +53,7 @@ module.exports = {
 
     //Received data
     recieve: function recieve(midiChannel, data, server, syncActive, parent) {
+        var self = this;
         var msgs = [];
         var remove = [];
         for (var i = 0; i < data.length; i++) {
@@ -56,6 +70,8 @@ module.exports = {
                                         "level": data[i + 6]
                                     }
                                 });
+
+                                self.values[data[i + 2]] = data[i + 6];
 
                                 //Remove it from the buffer
                                 remove.push(i);

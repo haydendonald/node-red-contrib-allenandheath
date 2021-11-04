@@ -151,7 +151,7 @@ module.exports = function(RED) {
             var value = false;
 
             value = object.consoles[object.console].generatePacket(msg, network.server, network.midiChannel, function(msg) {
-                object.sendMessage("any", msg);
+                object.sendMessage(sender, msg);
             });
     
             if((typeof value === "string")) {
