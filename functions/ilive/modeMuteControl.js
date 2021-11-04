@@ -60,6 +60,9 @@ module.exports = {
             data = Buffer.concat([data.slice(0, remove[i]), data.slice(remove[i] + 5)]);
         }
         parent.receiveBuffer = data;
+        if(msgs.length == 0) {
+            return false;
+        }
         return [msgs];
     },
 
