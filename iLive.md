@@ -86,3 +86,29 @@ var msg = {
     }
 }
 ```
+
+## Scene Control (Set)
+Recall a scene on the console 
+- `function` "sceneRecall"
+- `sceneNumber` The scene number
+
+### Example message from the console
+```
+var msg = {
+    "payload": {
+        "function": "sceneRecall",
+        "sceneNumber": 0
+    }
+}
+```
+
+### Example request to the console
+```
+//Request to set the mute to on for channel 1
+var msg = {
+    "payload": {
+        "function": "sceneRecall",
+        "sceneNumber": 0
+    }
+}
+```
