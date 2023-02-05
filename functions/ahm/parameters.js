@@ -147,7 +147,7 @@ module.exports = {
             sendPing: require("./sendPing.js").object()
             // channelName: require("./channelName.js").object(),
             // muteControl: require("./muteControl.js").object(),
-            // faderLevel: require("./faderLevel.js").object(),
+            faderLevel: require("./faderLevel.js").object(),
             // sceneRecall: require("./sceneRecall.js").object()
         },
 
