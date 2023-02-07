@@ -35,8 +35,8 @@ module.exports = {
                     if(msg.payload.channel == undefined){return "channel not specified";}
                     if(msg.payload.zone == undefined){return "zone not specified";}
 
-                    channelNumber = Object.parameters.toHex(msg.payload.channel);
-                    zoneNumber = Object.parameters.toHex(msg.payload.zone);
+                    channelNumber = this.toHex(msg.payload.channel);
+                    zoneNumber = this.toHex(msg.payload.zone);
 
                     //SysEx Header, 0N, 01, 0F, 03, CH, SndN, SndCH, F7
 
@@ -114,6 +114,12 @@ module.exports = {
             
             Object.assign(msg.payload, this.data);
             return msg;
+        },
+
+        toHex(num) {
+            var temp = num - 1;
+            var hex = temp.toString(16);
+            return "0x" + "0".repeat(2 - hex.length) + hex;
         },
 
         //Ping
