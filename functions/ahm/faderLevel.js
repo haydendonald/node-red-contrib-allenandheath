@@ -75,7 +75,7 @@ module.exports = {
         recieve: function recieve(midiChannel, data, server, syncActive) {
             var object = this;
 
-            return data;
+            return "Data Recived from the AHM";
 
             var ret = false;
             for(var i = 0; i < data.length; i++) {

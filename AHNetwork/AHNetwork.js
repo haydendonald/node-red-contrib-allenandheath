@@ -83,19 +83,21 @@ module.exports = function(RED) {
                     object.sendSuccess("any", "Connected");
                     object.sendMessage("any", {"topic": "connectionState", "payload": "connected"});
 
-                    //Setup ping
-                    clearInterval(this.pingInterval);
-                    this.pingInterval = setInterval(function() {
-                        object.consoles[object.console].sendPing(object.server, object.midiChannel, function(success) {
-                            if(success == true) {
-                                object.sendSuccess("any", "Ping success");
-                            }
-                            else {
-                                object.sendError("any", "Ping failed");
-                                object.connectionChanged(false);
-                            }
-                        });
-                    }, 10000);
+                    //Setup ping ignore AHM
+                    if (object.console != "ahm") {
+                        clearInterval(this.pingInterval);
+                        this.pingInterval = setInterval(function() {
+                            object.consoles[object.console].sendPing(object.server, object.midiChannel, function(success) {
+                                if(success == true) {
+                                    object.sendSuccess("any", "Ping success");
+                                }
+                                else {
+                                    object.sendError("any", "Ping failed");
+                                    object.connectionChanged(false);
+                                }
+                            });
+                        }, 10000);
+                    }
                 }
                 else {
                     object.connected = false;
