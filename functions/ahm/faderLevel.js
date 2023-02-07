@@ -61,6 +61,9 @@ module.exports = {
                     var output = Buffer.from([0x01, zoneNumber]);
                     var level = Buffer.from([level, 0xF7]);
 
+                    // final output should look like SysEx Header, 00, 02, CH, SndN, SndCH, LV, F7
+                    // for sending input 1 to zone 1 at -inf
+                    // F0, 00, 00, 1A, 50, 12, 01, 00, 00, 02, 00, 01, 00, 00, f7 
                     return Buffer.concat([header, input, output, level]);
                 }
             }
@@ -71,6 +74,8 @@ module.exports = {
         //Recieved data
         recieve: function recieve(midiChannel, data, server, syncActive) {
             var object = this;
+
+            return data;
 
             var ret = false;
             for(var i = 0; i < data.length; i++) {
