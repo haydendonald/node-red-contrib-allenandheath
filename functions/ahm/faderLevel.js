@@ -37,7 +37,7 @@ module.exports = {
                     
                     channelNumber = temp.parameters.inputChannel[msg.payload.channelNumber];
                     zoneNumber = temp.parameters.zones[msg.payload.zoneNumber];
-                    if(channelNumber == undefined || zoneNumber == undefined){return "channel or zone id was not found.";}
+                    if(channelNumber == undefined || zoneNumber == undefined){return "channel or zone id was not found." + channelNumber + " " + zoneNumber;}
                     
                     if(msg.payload.level === undefined){return "level is not specified";}
                     var level = (parseFloat(msg.payload.level) / 100) * 127;
