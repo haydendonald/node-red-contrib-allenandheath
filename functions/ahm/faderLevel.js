@@ -35,7 +35,7 @@ module.exports = {
                     if(msg.payload.channel == undefined){return "channel not specified";}
                     if(msg.payload.zone == undefined){return "zone not specified";}
                     
-                    channelNumber = temp.parameters.inputChannel[msg.payload.channel];
+                    channelNumber = temp.parameters.inputChannel[msg.payload.channelNumber];
                     zoneNumber = temp.parameters.zones[msg.payload.zoneNumber];
                     if(channelNumber == undefined || zoneNumber == undefined){return "channel or zone id was not found.";}
                     
