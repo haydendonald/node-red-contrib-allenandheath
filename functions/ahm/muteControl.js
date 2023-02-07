@@ -13,7 +13,7 @@ module.exports = {
 
         //Send out
         generatePacket: function generatePacket(msg, server, midiChannel, callback) {
-            var object = this;
+            var temp = this;
             if(msg.payload.function == "muteControl") {
                 if(msg.payload.channel === undefined && msg.payload.zone == undefined) {
                     //Just return the stored information
@@ -23,7 +23,7 @@ module.exports = {
                         }
                     }
                     
-                    Object.assign(msg.payload, object.data);
+                    Object.assign(msg.payload, temp.data);
 
                     callback(msg);
                     return true;
