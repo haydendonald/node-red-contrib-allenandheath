@@ -15,7 +15,7 @@ module.exports = {
         generatePacket: function generatePacket(msg, server, midiChannel, callback) {
             var temp = this;
             if(msg.payload.function == "faderLevel") {
-                if(msg.payload.channelType === undefined && msg.payload.channel === undefined && msg.payload.level === undefined && msg.payload.zone == undefined) {
+                if(msg.payload.channel === undefined && msg.payload.level === undefined && msg.payload.zone == undefined) {
                     //Just return the stored information
                     var msg = {
                         "payload": {
@@ -36,7 +36,7 @@ module.exports = {
                     if(msg.payload.zone == undefined){return "zone not specified";}
                     
                     channelNumber = temp.parameters.inputChannel[msg.payload.channel];
-                    zoneNumber = tempp.parameters.zones[msg.payload.zoneNumber];
+                    zoneNumber = temp.parameters.zones[msg.payload.zoneNumber];
                     if(channelNumber == undefined || zoneNumber == undefined){return "channel or zone id was not found.";}
                     
                     if(msg.payload.level === undefined){return "level is not specified";}
