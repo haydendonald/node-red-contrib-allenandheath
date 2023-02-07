@@ -35,8 +35,8 @@ module.exports = {
                     if(msg.payload.channel == undefined){return "channel not specified";}
                     if(msg.payload.zone == undefined){return "zone not specified";}
                     
-                    channelNumber = temp.parameters.inputChannel[msg.payload.channelNumber];
-                    zoneNumber = temp.parameters.zones[msg.payload.zoneNumber];
+                    channelNumber = this.toHex(msg.payload.channel);
+                    zoneNumber = this.toHex(msg.payload.zone);
                     if(channelNumber == undefined || zoneNumber == undefined){return "channel or zone id was not found. " + channelNumber + " " + zoneNumber + " " + msg.payload.channel + " " + msg.payload.zone;}
                     
                     if(msg.payload.level === undefined){return "level is not specified";}
@@ -140,6 +140,12 @@ module.exports = {
             
             Object.assign(msg.payload, this.data);
             return msg;
+        },
+
+        toHex(num) {
+            var temp = num - 1;
+            var hex = temp.toString(16);
+            return "0x" + "0".repeat(2 - hex.length) + hex;
         },
 
         //Ping
