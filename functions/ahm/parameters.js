@@ -148,7 +148,7 @@ module.exports = {
             //endInitialSync: require("./endInitialSync.js"),
             sendPing: require("./sendPing.js").object(),
             // channelName: require("./channelName.js").object(),
-            // muteControl: require("./muteControl.js").object(),
+            muteControl: require("./muteControl.js").object(),
             faderLevel: require("./faderLevel.js").object()
             // sceneRecall: require("./sceneRecall.js").object()
         },
@@ -242,6 +242,12 @@ module.exports = {
             });
 
             return value;
+        },
+
+        toHex: function(num) {
+            var temp = num - 1;
+            var hex = temp.toString(16);
+            return "0x" + "0".repeat(2 - hex.length) + hex;
         },
 
         //Send message on initial connection
