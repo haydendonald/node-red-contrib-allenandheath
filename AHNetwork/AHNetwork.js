@@ -37,16 +37,20 @@ module.exports = function(RED) {
             });
 
             this.server.on("data", function(message) {
-                var value = object.consoles[object.console].recieve(message, object.midiChannel, object.server);
-                if((typeof value === "string")) {
-                    //An Error Occurred
-                    object.error("Function Error: " + value);
-                    object.sendError("any", "Function error check debug");
+                var callback = function(value) {
+                    if((typeof value === "string")) {
+                        //An Error Occurred
+                        object.error("Function Error: " + value);
+                        object.sendError("any", "Function error check debug");
+                    }
+                    else if(value != false && value != true && value != undefined){
+                        object.sendSuccess("any", "Got message!");
+                        object.sendMessage("any", value);
+                    }   
                 }
-                else if(value != false && value != true && value != undefined){
-                    object.sendSuccess("any", "Got message!");
-                    object.sendMessage("any", value);
-                }   
+                var value = object.consoles[object.console].recieve(message, object.midiChannel, object.server, callback);
+                callback(value);
+
             });
 
             this.server.on("error", function(e) {
