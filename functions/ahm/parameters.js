@@ -13,7 +13,7 @@ module.exports = {
             functions: {
                 //muteControl: require("./muteControl.js").object(),
                 //faderLevel: require("./faderLevel.js").object(),
-                //zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
+                zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
                 zoneSendFaderLevel: require("./zoneSendFaderLevel.js").object(),
             },
 

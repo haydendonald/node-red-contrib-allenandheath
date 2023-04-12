@@ -2,7 +2,7 @@
 
 ## General Command Layout
 
-```
+```javascript
 //Received Information Format
 var msg.payload = {
     "function": "The function received",
@@ -28,7 +28,7 @@ var msg.payload = {
 Sets/Gets the mute state of a channel
 
 ### Example message from the console
-```
+```javascript
 var msg = {
     "payload": {
         "function": "muteControl",
@@ -52,17 +52,17 @@ var msg = {
 ```
 
 ### Example request to the console
-```
+```javascript
 var msg = {
     "payload": {
         "function": "muteControl",
-        "source": "<CHANNEL SELECTION><CHANNEL ID>" //Example would be channel1, zone5, or controlGroup9
+        "source": "channel1" //Example would be channel1, zone5, or controlGroup9
         "muted": true
     }
 }
 ```
 
-```
+```javascript
 //Request to get channels
 var msg = {
     "payload": {
@@ -76,7 +76,7 @@ var msg = {
 Sets/Gets the level of a channel
 
 ### Example message from the console
-```
+```javascript
 var msg = {
     "payload": {
         "function": "faderLevel",
@@ -100,21 +100,127 @@ var msg = {
 ```
 
 ### Example request to the console
-```
+```javascript
 var msg = {
     "payload": {
         "function": "faderLevel",
-        "source": "<CHANNEL SELECTION><CHANNEL ID>" //Example would be channel1, zone5, or controlGroup9
+        "source": "channel1" //Example would be channel1, zone5, or controlGroup9
         "level": 0-127
     }
 }
 ```
 
-```
+```javascript
 //Request to get channels
 var msg = {
     "payload": {
         "function": "faderLevel"
+    }
+}
+```
+
+## Zone Send Mute Control (zoneSendMuteControl) (Get/Set)
+
+### Example message from the console
+```javascript
+return {
+    "payload": {
+        "function": "zoneSendMuteControl",
+        "channel": {
+            1: {
+                "zone": {
+                    1: true/false,
+                    2: true/false
+                    ...
+                }
+            }
+            ...
+        },
+        "zone": {
+            1: {
+                "zone": {
+                    1: true/false,
+                    2: true/false
+                    ...
+                }
+                ...
+            }
+            ...
+        }
+    }
+}
+```
+
+### Example request to the console
+```javascript
+return {
+    "payload": {
+        "function": "zoneSendMuteControl",
+        "source": "zone5", //Examples would be channel1, zone5, or controlGroup9
+        "send": "zone28", //Examples would be channel1, zone5, or controlGroup9
+        "muted": false
+    }
+}
+```
+
+```javascript
+//Request to get channels
+var msg = {
+    "payload": {
+        "function": "zoneSendMuteControl"
+    }
+}
+```
+
+## Zone Send Fader Level (zoneSendFaderLevel) (Get/Set)
+
+### Example message from the console
+```javascript
+return {
+    "payload": {
+        "function": "zoneSendFaderLevel",
+        "channel": {
+            1: {
+                "zone": {
+                    1: 0-127
+                    2: 0-127
+                    ...
+                }
+            }
+            ...
+        },
+        "zone": {
+            1: {
+                "zone": {
+                    1: 0-127
+                    2: 0-127
+                    ...
+                }
+                ...
+            }
+            ...
+        }
+    }
+}
+```
+
+### Example request to the console
+```javascript
+return {
+    "payload": {
+        "function": "zoneSendFaderLevel",
+        "source": "zone5", //Examples would be channel1, zone5, or controlGroup9
+        "send": "zone28", //Examples would be channel1, zone5, or controlGroup9
+        "level": 0-127
+    }
+}
+```
+
+```javascript
+//Request to get channels
+var msg = {
+    "payload": {
+        "function": "zoneSendFaderLevel"
     }
 }
 ```
