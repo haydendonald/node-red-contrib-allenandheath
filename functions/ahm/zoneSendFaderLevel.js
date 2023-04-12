@@ -127,6 +127,8 @@ module.exports = {
                         return packet;
                     }
                 }
+
+                return false;
             },
 
             //Recieved data

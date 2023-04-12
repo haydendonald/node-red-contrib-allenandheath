@@ -11,10 +11,10 @@ module.exports = {
             syncTimeout: undefined,
             totalChannelSelection: [64, 64, 32], //[inputs, zones, control groups]
             functions: {
-                //muteControl: require("./muteControl.js").object(),
+                muteControl: require("./muteControl.js").object(),
                 faderLevel: require("./faderLevel.js").object(),
-                //zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
-                //zoneSendFaderLevel: require("./zoneSendFaderLevel.js").object(),
+                zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
+                zoneSendFaderLevel: require("./zoneSendFaderLevel.js").object(),
             },
 
             //Reset this object
