@@ -105,6 +105,8 @@ module.exports = {
                     if (state === undefined) { break; }
                     if (channelSelection < 0 || channelSelection > 2) { break; }
                     if (channel < 0 || channel > object.parameters.totalChannelSelection[channelSelection]) { break; }
+
+    
                     object.data[Object.keys(object.data)[channelSelection]][channel + 1] = state;
                     data = data.slice(i + 5, data.length);
                     i = 0;

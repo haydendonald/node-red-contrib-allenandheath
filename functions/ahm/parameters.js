@@ -5,13 +5,13 @@ module.exports = {
                 allCall: [0xF0, 0x00, 0x00, 0x1A, 0x50, 0x12, 0x01, 0x00],
                 currentHeader: undefined
             },
-            recieveBuffer: new Buffer(0),
+            recieveBuffer: Buffer.from([]),
             processTimeout: undefined,
             syncActive: true,
             syncTimeout: undefined,
             totalChannelSelection: [64, 64, 32], //[inputs, zones, control groups]
             functions: {
-                //muteControl: require("./muteControl.js").object(),
+                muteControl: require("./muteControl.js").object(),
                 //faderLevel: require("./faderLevel.js").object(),
                 zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
                 zoneSendFaderLevel: require("./zoneSendFaderLevel.js").object(),
@@ -48,10 +48,10 @@ module.exports = {
                     callback(value);
                 }, 100);
 
-                //Once we're done syncing send the values
-                if (object.syncActive == true) {
-                    clearTimeout(object.syncTimeout);
-                    object.syncTimeout = setTimeout(function () {
+                clearTimeout(object.syncTimeout);
+                object.syncTimeout = setTimeout(function () {
+                    //Once we're done syncing send the values
+                    if (object.syncActive == true) {
                         object.syncActive = false;
                         var value = [];
                         Object.keys(object.functions).forEach(function (key) {
@@ -61,8 +61,11 @@ module.exports = {
                             }
                         });
                         callback(value);
-                    }, 1000);
-                }
+                    }
+                    
+                    //Clear the unused buffer
+                    object.recieveBuffer = Buffer.from([]);
+                }, 1000);
 
                 return true;
             },
