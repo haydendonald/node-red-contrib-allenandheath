@@ -37,7 +37,7 @@ module.exports = {
             generatePacket: function generatePacket(msg, server, midiChannel, callback) {
                 var object = this;
                 if (msg.payload.function == "faderLevel") {
-                    if (msg.payload.channelSelection === undefined && msg.payload.channel === undefined && msg.payload.level === undefined) {
+                    if (msg.payload.source === undefined && msg.payload.level === undefined) {
                         //Just return the stored information
                         var msg = {
                             "payload": {
@@ -52,44 +52,39 @@ module.exports = {
                     }
                     else {
                         if (msg.payload === undefined) { return "payload is not specified"; }
-                        if (msg.payload.channelSelection === undefined) { return "channelSelection is not specified"; }
-                        if (msg.payload.channel === undefined) { return "channel is not specified"; }
-                        if (msg.payload.level === undefined) { return "muted is not specified"; }
+                        if (msg.payload.source === undefined) { return "source is not specified"; }
+                        if (msg.payload.level === undefined) { return "level is not specified"; }
 
-                        //Validate the channel selection
-                        var channel = parseInt(msg.payload.channel);
-                        var level = parseInt(msg.payload.level);
-                        var channelSelectionIdx = {
-                            "channel": 0,
-                            "zone": 1,
-                            "controlGroup": 2
-                        }[msg.payload.channelSelection];
-                        if (channelSelectionIdx === undefined) { return "Invalid channel selection"; }
+                        //Get the source selection + id
+                        var sourceSelection;
+                        var sourceId;
+                        if (msg.payload.source.includes("channel")) { sourceSelection = 0; sourceId = parseInt(msg.payload.source.split("channel")[1]); }
+                        else if (msg.payload.source.includes("zone")) { sourceSelection = 1; sourceId = parseInt(msg.payload.source.split("zone")[1]); }
+                        else if (msg.payload.source.includes("controlGroup")) { sourceSelection = 2; sourceId = parseInt(msg.payload.source.split("controlGroup")[1]); }
+                        else {
+                            return "Invalid source channel selection";
+                        }
+                        if (sourceId < 1 || sourceId > object.parameters.totalChannelSelection[sourceSelection] + 1) {
+                            return "Invalid source id";
+                        }
 
                         //Validate the channel
-                        if (channel < 1 || channel > object.parameters.totalChannelSelection[channelSelectionIdx] + 1) {
+                        if (sourceId < 1 || sourceId > object.parameters.totalChannelSelection[sourceSelection] + 1) {
                             return "Invalid channel";
                         }
 
                         //Validate the level
-                        if(level < 0 || level > 0x7F) {
+                        if (msg.payload.level < 0 || msg.payload.level > 0x7F) {
                             return "Invalid level";
                         }
 
-                        //Generate the packet!
-                        var retMsg = {
-                            "payload": {
-                                "function": "faderLevel"
-                            }
-                        }
-                        try {
-                            object.data[msg.payload.channelSelection][channel] = msg.payload.level;
-                            Object.assign(retMsg.payload, object.data);
-                            callback(retMsg);
-                        }
-                        catch (e) { }
+                        //After a little bit ask for the channel
+                        setTimeout(function () {
+                            try { server.write(Buffer.concat([Buffer.from(object.parameters.sysexHeader.allCall), Buffer.from([sourceSelection, 0x01, 0x0B, 0x17, sourceId - 1, 0xF7])])); }
+                            catch (e) { console.log("Failed to send packet! "); console.log(e); return false; }
+                        }, 100);
 
-                        var packet = Buffer.from([(0xB0 + channelSelectionIdx), 0x63, channel - 1, (0xB0 + channelSelectionIdx), 0x62, 0x17, (0xB0 + channelSelectionIdx), 0x06, level]);
+                        var packet = Buffer.from([(0xB0 + sourceSelection), 0x63, sourceId - 1, (0xB0 + sourceSelection), 0x62, 0x17, (0xB0 + sourceSelection), 0x06, msg.payload.level]);
                         return packet;
                     }
                 }
@@ -136,7 +131,7 @@ module.exports = {
             getData() {
                 var msg = {
                     "payload": {
-                        "function": "muteControl"
+                        "function": "faderLevel"
                     }
                 }
 
