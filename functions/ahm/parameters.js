@@ -13,7 +13,8 @@ module.exports = {
             functions: {
                 //muteControl: require("./muteControl.js").object(),
                 //faderLevel: require("./faderLevel.js").object(),
-                zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
+                //zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
+                zoneSendFaderLevel: require("./zoneSendFaderLevel.js").object(),
             },
 
             //Reset this object
@@ -48,9 +49,9 @@ module.exports = {
                 }, 100);
 
                 //Once we're done syncing send the values
-                if(object.syncActive == true) {
+                if (object.syncActive == true) {
                     clearTimeout(object.syncTimeout);
-                    object.syncTimeout = setTimeout(function() {
+                    object.syncTimeout = setTimeout(function () {
                         object.syncActive = false;
                         var value = [];
                         Object.keys(object.functions).forEach(function (key) {
@@ -69,8 +70,8 @@ module.exports = {
             generatePacket: function (msg, server, midiChannel, returnPayload) {
                 var value = false;
                 var temp = this;
-                Object.keys(temp.functions).forEach(function(key){
-                    if(value === false) {
+                Object.keys(temp.functions).forEach(function (key) {
+                    if (value === false) {
                         var func = temp.functions[key];
                         value = func.generatePacket(msg, server, midiChannel, returnPayload);
                     }
