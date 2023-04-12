@@ -56,8 +56,7 @@ var msg = {
 var msg = {
     "payload": {
         "function": "muteControl",
-        "channelSelection": "channel/zone/controlGroup",
-        "channel": 1,
+        "source": "<CHANNEL SELECTION><CHANNEL ID>" //Example would be channel1, zone5, or controlGroup9
         "muted": true
     }
 }
@@ -105,8 +104,7 @@ var msg = {
 var msg = {
     "payload": {
         "function": "faderLevel",
-        "channelSelection": "channel/zone/controlGroup",
-        "channel": 1,
+        "source": "<CHANNEL SELECTION><CHANNEL ID>" //Example would be channel1, zone5, or controlGroup9
         "level": 0-127
     }
 }

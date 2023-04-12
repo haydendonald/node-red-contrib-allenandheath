@@ -116,7 +116,6 @@ module.exports = {
 
                         //After a little bit ask for the channel
                         setTimeout(function () {
-                            console.log("REQ");
                             try { server.write(Buffer.concat([Buffer.from(object.parameters.sysexHeader.allCall), Buffer.from([sourceSelection, 0x01, 0x0F, 0x03, sourceId - 1, sendSelection, sendId - 1, 0xF7])])); }
                             catch (e) { console.log("Failed to send packet! "); console.log(e); return false; }
                         }, 100);
