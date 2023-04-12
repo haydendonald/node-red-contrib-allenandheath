@@ -6,4 +6,4 @@ This project supports the following consoles (click the console for more informa
 * [iLive](https://github.com/haydendonald/node-red-contrib-allenandheath/blob/master/iLive.md)
 * [dLive](https://github.com/haydendonald/node-red-contrib-allenandheath/blob/master/dLive.md)
 * [qu-16](https://github.com/haydendonald/node-red-contrib-allenandheath/blob/master/qu16.md)
-* [AHM](https://github.com/haydendonald/node-red-contrib-allenandheath/blob/master/ahm.md)
+* [AHM](https://github.com/haydendonald/node-red-contrib-allenandheath/blob/master/AHM.md)
