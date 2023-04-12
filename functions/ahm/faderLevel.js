@@ -23,14 +23,15 @@ module.exports = {
             //Request all the channels
             initial: function (server, midiChannel) {
                 var self = this;
-
+                var packet = [];
                 for (var i = 0; i < 3; i++) {
                     for (var j = 0; j < self.parameters.totalChannelSelection[i]; j++) {
-                        var packet = Buffer.concat([Buffer.from(self.parameters.sysexHeader.allCall), Buffer.from([i, 0x01, 0x0B, 0x17, j, 0xF7])]);
-                        try { server.write(packet); }
-                        catch (e) { console.log("Failed to send packet! "); console.log(e); return false; }
+                        packet = Buffer.concat([Buffer.from(packet), Buffer.from(self.parameters.sysexHeader.allCall), Buffer.from([i, 0x01, 0x0B, 0x17, j, 0xF7])]);
                     }
                 }
+
+                try { server.write(packet); }
+                catch (e) { console.log("Failed to send packet! "); console.log(e); return false; }
             },
 
             //Send out
@@ -97,25 +98,28 @@ module.exports = {
                 var object = this;
                 var updated = false;
 
+                var newData = [];
                 for (var i = 0; i < data.length;) {
-                    if (data[i + 1] != 0x63) { break; }
-                    if (data[i + 3] != 0x62) { break; }
-                    if (data[i + 4] != 0x17) { break; }
-                    if (data[i + 5] != 0x06) { break; }
-
-                    var channelSelection = data[i + 0] - 0xB0;
-                    var channel = data[i + 2];
-                    var level = data[i + 6];
-
-                    if (channelSelection < 0 || channelSelection > 2) { break; }
-                    if (channel < 0 || channel > object.parameters.totalChannelSelection[channelSelection]) { break; }
-                    object.data[Object.keys(object.data)[channelSelection]][channel + 1] = level;
-                    data = data.slice(i + 7, data.length);
-                    i = 0;
-                    updated = true;
+                    if (data[i + 1] == 0x63 && data[i + 3] == 0x62 && data[i + 4] == 0x17 && data[i + 5] == 0x06) {
+                        var channelSelection = data[i + 0] - 0xB0;
+                        var channel = data[i + 2];
+                        var level = data[i + 6];
+                        if (channelSelection >= 0 && channelSelection <= 2) {
+                            if (channel >= 0 && channel <= object.parameters.totalChannelSelection[channelSelection]) {
+                                object.data[Object.keys(object.data)[channelSelection]][channel + 1] = level;
+                                i += 6;
+                                updated = true;
+                            }
+                        }
+                    }
+                    else {
+                        newData.push(data[i]);
+                    }
+                    i++;
                 }
+                data = newData; //BUG: This is not returning by value :(
 
-                if (updated == true) {
+                if (updated == true && object.parameters.syncActive == false) {
                     var msg = {
                         "payload": {
                             "function": "faderLevel"

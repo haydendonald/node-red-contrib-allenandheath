@@ -21,15 +21,17 @@ module.exports = {
             },
 
             //Request all the channels
-            initial: function (server, midiChannel) {
+            initial: function (server, midiChannel, callback) {
                 var self = this;
+                var packet = [];
                 for (var i = 0; i < 3; i++) {
                     for (var j = 0; j < self.parameters.totalChannelSelection[i]; j++) {
-                        var packet = Buffer.concat([Buffer.from(self.parameters.sysexHeader.allCall), Buffer.from([i, 0x01, 0x09, j, 0xF7])]);
-                        try { server.write(packet); }
-                        catch (e) { console.log("Failed to send packet! "); console.log(e); return false; }
+                        packet = Buffer.concat([Buffer.from(packet), Buffer.from(self.parameters.sysexHeader.allCall), Buffer.from([i, 0x01, 0x09, j, 0xF7])]);
                     }
                 }
+
+                try { server.write(packet); }
+                catch (e) { console.log("Failed to send packet! "); console.log(e); return false; }
             },
 
             //Send out
@@ -92,30 +94,37 @@ module.exports = {
             recieve: function recieve(midiChannel, data, server, syncActive) {
                 var object = this;
                 var updated = false;
+
+                var newData = [];
                 for (var i = 0; i < data.length;) {
-                    if (data[i + 1] != data[i + 3]) { break; }
-                    if (data[i + 4] != 0) { break; }
-                    var channelSelection = data[i + 0] - 144;
-                    var channel = data[i + 1];
-                    var state = undefined;
-                    if (data[i + 2] == 0x3F) {
-                        state = false;
+                    if (data[i + 1] == data[i + 3] && data[i + 4] == 0x00) {
+                        var channelSelection = data[i + 0] - 144;
+                        var channel = data[i + 1];
+                        var state = undefined;
+                        if (data[i + 2] == 0x3F) {
+                            state = false;
+                        }
+                        else if (data[i + 2] == 0x7F) {
+                            state = true;
+                        }
+                        if (state !== undefined) {
+                            if (channelSelection >= 0 && channelSelection <= 2) {
+                                if (channel >= 0 && channel <= object.parameters.totalChannelSelection[channelSelection]) {
+                                    object.data[Object.keys(object.data)[channelSelection]][channel + 1] = state;
+                                    i += 4;
+                                    updated = true;
+                                }
+                            }
+                        }
                     }
-                    else if (data[i + 2] == 0x7F) {
-                        state = true;
+                    else {
+                        newData.push(data[i]);
                     }
-                    if (state === undefined) { break; }
-                    if (channelSelection < 0 || channelSelection > 2) { break; }
-                    if (channel < 0 || channel > object.parameters.totalChannelSelection[channelSelection]) { break; }
-
-    
-                    object.data[Object.keys(object.data)[channelSelection]][channel + 1] = state;
-                    data = data.slice(i + 5, data.length);
-                    i = 0;
-                    updated = true;
+                    i++;
                 }
+                data = newData;  //BUG: This is not returning by value :(
 
-                if (updated == true) {
+                if (updated == true && object.parameters.syncActive == false) {
                     var msg = {
                         "payload": {
                             "function": "muteControl"

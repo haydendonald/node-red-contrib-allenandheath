@@ -135,27 +135,33 @@ module.exports = {
             recieve: function recieve(midiChannel, data, server, syncActive) {
                 var object = this;
                 var updated = false;
+                var newData = [];
                 for (var i = 0; i < data.length;) {
                     var offset = object.parameters.sysexHeader.allCall.length;
 
-                    if (data[i + offset + 1] != 0x02) { break; }
-                    if (data[i + offset + 6] != 0xF7) { break; }
-                    var channelSelection = data[i + offset + 0] - 0x00;
-                    var channel = data[i + offset + 2] - 0x00;
-                    var channelSend = data[i + offset + 4] - 0x00;
-                    var channelSelectionSend = data[i + offset + 3] - 0x00;
-                    var level = data[i + offset + 5];
+                    if (data[i + offset + 1] == 0x02 && data[i + offset + 6] == 0xF7) {
+                        var channelSelection = data[i + offset + 0] - 0x00;
+                        var channel = data[i + offset + 2] - 0x00;
+                        var channelSend = data[i + offset + 4] - 0x00;
+                        var channelSelectionSend = data[i + offset + 3] - 0x00;
+                        var level = data[i + offset + 5];
 
-                    if (channelSelection < 0 || channelSelection > 2) { break; }
-                    if (channel < 0 || channel > object.parameters.totalChannelSelection[channelSelection]) { break; }
-                    if (channelSelectionSend < 0 || channelSelectionSend > 2) { break; }
-                    if (channelSend < 0 || channelSend > object.parameters.totalChannelSelection[channelSelectionSend]) { break; }
+                        if (channelSelection >= 0 && channelSelection <= 2 && channel >= 0 && channel <= object.parameters.totalChannelSelection[channelSelection]) {
+                            if (channelSelectionSend >= 0 && channelSelectionSend <= 2 && channelSend >= 0 && channelSend <= object.parameters.totalChannelSelection[channelSelectionSend]) {
+                                object.updateSource(channelSelection, channel, channelSelectionSend, channelSend, level);
+                                i += offset + 6;
+                                updated = true;
+                            }
+                        }
+                    }
+                    else {
+                        newData.push(data[i]);
+                    }
 
-                    object.updateSource(channelSelection, channel, channelSelectionSend, channelSend, level);
-                    data = data.slice(i + offset + 7, data.length);
-                    i = 0;
-                    updated = true;
+                    i++;
                 }
+
+                data = newData; //BUG: This is not returning by value :(
 
                 if (updated == true && object.parameters.syncActive == false) {
                     return object.generateFlowMessage();

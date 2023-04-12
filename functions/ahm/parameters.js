@@ -9,6 +9,7 @@ module.exports = {
             processTimeout: undefined,
             syncActive: true,
             syncTimeout: undefined,
+            waitingInit: [],
             totalChannelSelection: [64, 64, 32], //[inputs, zones, control groups]
             functions: {
                 muteControl: require("./muteControl.js").object(),
@@ -52,20 +53,25 @@ module.exports = {
                 object.syncTimeout = setTimeout(function () {
                     //Once we're done syncing send the values
                     if (object.syncActive == true) {
-                        object.syncActive = false;
-                        var value = [];
-                        Object.keys(object.functions).forEach(function (key) {
-                            var temp = object.functions[key].getData()
-                            if (temp !== false && temp !== true) {
-                                value.push(temp);
-                            }
-                        });
-                        callback(value);
+                        if (object.waitingInit.length > 0) {
+                            object.functions[object.waitingInit.pop()].initial(server, midiChannel);
+                        }
+                        else {
+                            object.syncActive = false;
+                            var value = [];
+                            Object.keys(object.functions).forEach(function (key) {
+                                var temp = object.functions[key].getData()
+                                if (temp !== false && temp !== true) {
+                                    value.push(temp);
+                                }
+                            });
+                            callback([value]);
+                        }
                     }
 
                     //Clear the unused buffer
                     object.recieveBuffer = Buffer.from([]);
-                }, 1000);
+                }, 3000);
 
                 return true;
             },
@@ -88,17 +94,20 @@ module.exports = {
             },
 
             //Send message on initial connection
-            initialConnection: function (server, midiChannel) {
+            initialConnection: function (server, midiChannel, callback) {
                 var temp = this;
                 Object.keys(this.functions).forEach(function (func) {
                     var mode = temp.functions[func];
                     mode.setup(temp);
                 });
 
-                for (var func in temp.functions) {
-                    temp.functions[func].initial(server, midiChannel);
-                }
+                //Request initial data for the first function
+                temp.functions[Object.keys(temp.functions)[0]].initial(server, midiChannel);
 
+                for (var func in temp.functions) {
+                    temp.waitingInit.push(func);
+                }
+                temp.functions[temp.waitingInit.pop()].initial(server, midiChannel);
                 return true;
             }
         }

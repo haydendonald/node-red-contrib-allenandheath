@@ -132,35 +132,40 @@ module.exports = {
             recieve: function recieve(midiChannel, data, server, syncActive) {
                 var object = this;
                 var updated = false;
+                var newData = [];
                 for (var i = 0; i < data.length;) {
                     var offset = object.parameters.sysexHeader.allCall.length;
 
-                    if (data[i + offset + 1] != 0x03) { break; }
-                    if (data[i + offset + 6] != 0xF7) { break; }
-                    var channelSelection = data[i + offset + 0] - 0x00;
-                    var channel = data[i + offset + 2] - 0x00;
-                    var channelSend = data[i + offset + 4] - 0x00;
-                    var channelSelectionSend = data[i + offset + 3] - 0x00;
-
-                    var state = undefined;
-                    if (data[i + offset + 5] >= 1 && data[i + offset + 5] <= 0x3F) {
-                        state = false;
+                    if (data[i + offset + 1] == 0x03 && data[i + offset + 6] == 0xF7) {
+                        var channelSelection = data[i + offset + 0] - 0x00;
+                        var channel = data[i + offset + 2] - 0x00;
+                        var channelSend = data[i + offset + 4] - 0x00;
+                        var channelSelectionSend = data[i + offset + 3] - 0x00;
+                        var state = undefined;
+                        if (data[i + offset + 5] >= 1 && data[i + offset + 5] <= 0x3F) {
+                            state = false;
+                        }
+                        else if (data[i + offset + 5] >= 0x40 && data[i + offset + 5] <= 0x7F) {
+                            state = true;
+                        }
+                        if (state !== undefined) {
+                            if (channelSelection >= 0 && channelSelection <= 2 && channel >= 0 && channel <= object.parameters.totalChannelSelection[channelSelection]) {
+                                if (channelSelectionSend >= 0 && channelSelectionSend <= 2 && channelSend >= 0 && channelSend <= object.parameters.totalChannelSelection[channelSelectionSend]) {
+                                    object.updateSource(channelSelection, channel, channelSelectionSend, channelSend, state);
+                                    i += offset + 6;
+                                    updated = true;
+                                }
+                            }
+                        }
                     }
-                    else if (data[i + offset + 5] >= 0x40 && data[i + offset + 5] <= 0x7F) {
-                        state = true;
+                    else {
+                        newData.push(data[i]);
                     }
-                    if (state === undefined) { break; }
-
-                    if (channelSelection < 0 || channelSelection > 2) { break; }
-                    if (channel < 0 || channel > object.parameters.totalChannelSelection[channelSelection]) { break; }
-                    if (channelSelectionSend < 0 || channelSelectionSend > 2) { break; }
-                    if (channelSend < 0 || channelSend > object.parameters.totalChannelSelection[channelSelectionSend]) { break; }
-
-                    object.updateSource(channelSelection, channel, channelSelectionSend, channelSend, state);
-                    data = data.slice(i + offset + 7, data.length);
-                    i = 0;
-                    updated = true;
+                
+                    i++;
                 }
+
+                data = newData; //BUG: This is not returning by value :(
 
                 if (updated == true && object.parameters.syncActive == false) {
                     return object.generateFlowMessage();
