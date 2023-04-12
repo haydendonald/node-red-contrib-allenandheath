@@ -7,6 +7,8 @@ module.exports = {
             },
             recieveBuffer: new Buffer(0),
             processTimeout: undefined,
+            syncActive: true,
+            syncTimeout: undefined,
             totalChannelSelection: [64, 64, 32], //[inputs, zones, control groups]
             functions: {
                 //muteControl: require("./muteControl.js").object(),
@@ -44,6 +46,22 @@ module.exports = {
                     });
                     callback(value);
                 }, 100);
+
+                //Once we're done syncing send the values
+                if(object.syncActive == true) {
+                    clearTimeout(object.syncTimeout);
+                    object.syncTimeout = setTimeout(function() {
+                        object.syncActive = false;
+                        var value = [];
+                        Object.keys(object.functions).forEach(function (key) {
+                            var temp = object.functions[key].getData()
+                            if (temp !== false && temp !== true) {
+                                value.push(temp);
+                            }
+                        });
+                        callback(value);
+                    }, 1000);
+                }
 
                 return true;
             },
