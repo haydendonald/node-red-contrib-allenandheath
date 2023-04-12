@@ -9,12 +9,9 @@ module.exports = {
             processTimeout: undefined,
             totalChannelSelection: [64, 64, 32], //[inputs, zones, control groups]
             functions: {
-                //endInitialSync: require("./endInitialSync.js"),
-                // sendPing: require("./sendPing.js").object(),
-                // channelName: require("./channelName.js").object(),
-                muteControl: require("./muteControl.js").object(),
-                faderLevel: require("./faderLevel.js").object(),
-                // sceneRecall: require("./sceneRecall.js").object()
+                //muteControl: require("./muteControl.js").object(),
+                //faderLevel: require("./faderLevel.js").object(),
+                zoneSendMuteControl: require("./zoneSendMuteControl.js").object(),
             },
 
             //Reset this object
